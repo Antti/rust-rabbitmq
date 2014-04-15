@@ -3,7 +3,7 @@ extern crate libc;
 
 fn main(){
   println!("librabbitmq-c {}", amqp::version());
-  let con = amqp::Connection::new(amqp::TcpSocket).unwrap();
+  let mut con = amqp::Connection::new(amqp::TcpSocket).unwrap();
   let result = con.socket_open(~"localhost", 5672);
   if result.is_err() {
   	let errno = std::os::errno();
@@ -23,6 +23,6 @@ fn main(){
   let chan = con.channel_open(1);
   let reply = con.get_rpc_reply();
   println!("Reply: {}", reply);
-  chan.close(amqp::AMQP_REPLY_SUCCESS);
+  con.channel_close(chan, amqp::AMQP_REPLY_SUCCESS);
   con.connection_close(amqp::AMQP_REPLY_SUCCESS);
 }
