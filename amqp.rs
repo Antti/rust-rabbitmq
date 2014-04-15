@@ -22,9 +22,9 @@ enum ConnectionState {
   ConnectionClosed
 }
 
-pub struct Connection <'a> {
-  pub state: &'a rabbitmq::Struct_amqp_connection_state_t_,
-  socket: &'a rabbitmq::amqp_socket_t,
+pub struct Connection{
+  state: rabbitmq::amqp_connection_state_t,
+  socket: *mut rabbitmq::amqp_socket_t,
   connection_state: ConnectionState
 }
 
@@ -33,29 +33,29 @@ pub struct Channel {
 }
 
 #[unsafe_destructor]
-impl<'a> std::ops::Drop for Connection<'a> {
+impl std::ops::Drop for Connection {
   fn drop(&mut self) {
     self.connection_close(AMQP_REPLY_SUCCESS);
   }
 }
 
-impl<'a> Connection <'a>{
-  pub fn new(socket_type: SocketType) -> Result<Connection, ~str> {
+impl Connection {
+  pub fn new(socket_type: SocketType) -> Result<~Connection, ~str> {
 
-    fn new_connection() -> Option<&rabbitmq::Struct_amqp_connection_state_t_> {
+    fn new_connection() -> Option<rabbitmq::amqp_connection_state_t> {
       unsafe {
         match rabbitmq::amqp_new_connection(){
-          ptr @ _ if !ptr.is_null() => Some(&*ptr),
+          ptr @ _ if !ptr.is_null() => Some(ptr),
           // ptr @ _ if ptr.to_uint() == 0 => None,
           _ => None
         }
       }
     }
 
-    fn tcp_socket_new(state: &rabbitmq::Struct_amqp_connection_state_t_) -> Option<&rabbitmq::amqp_socket_t> {
+    fn tcp_socket_new(state: rabbitmq::amqp_connection_state_t) -> Option<*mut rabbitmq::amqp_socket_t> {
       unsafe {
-        match rabbitmq::amqp_tcp_socket_new(cast::transmute(state)){
-          ptr @ _ if !ptr.is_null() => Some(&*ptr),
+        match rabbitmq::amqp_tcp_socket_new(state){
+          ptr @ _ if !ptr.is_null() => Some(ptr),
           _ => None
         }
       }
@@ -71,12 +71,12 @@ impl<'a> Connection <'a>{
         None => return Err(~"Error creating socket")
       }
     };
-    Ok(Connection { state: state, socket: socket, connection_state: ConnectionClosed })
+    Ok(~Connection { state: state, socket: socket, connection_state: ConnectionClosed })
   }
 
   pub fn socket_open(&mut self, hostname: ~str, port: uint) -> Result<(), (~str, i32)> {
     unsafe {
-      match rabbitmq::amqp_socket_open(cast::transmute(self.socket), hostname.to_c_str().unwrap(), port as i32){
+      match rabbitmq::amqp_socket_open(self.socket, hostname.to_c_str().unwrap(), port as i32){
         0 => { self.connection_state = ConnectionOpen; Ok(()) },
         code @ _ => Err((error_string(code), code))
       }
@@ -86,21 +86,21 @@ impl<'a> Connection <'a>{
   pub fn login(&self, vhost: ~str, channel_max: int, frame_max: int, heartbeat: int,
              sasl_method: rabbitmq::amqp_sasl_method_enum, login: ~str, password: ~str) -> rabbitmq::amqp_rpc_reply_t {
     unsafe {
-      rabbitmq::amqp_login(cast::transmute(self.state), vhost.to_c_str().unwrap(), channel_max as i32, frame_max as i32, heartbeat as i32, sasl_method,
+      rabbitmq::amqp_login(self.state, vhost.to_c_str().unwrap(), channel_max as i32, frame_max as i32, heartbeat as i32, sasl_method,
                            login.to_c_str().unwrap(), password.to_c_str().unwrap())
     }
   }
 
   pub fn channel_open(&self, channel: u16) -> Channel {
     unsafe {
-      let response = rabbitmq::amqp_channel_open(cast::transmute(self.state), channel);
+      let response = rabbitmq::amqp_channel_open(self.state, channel);
       Channel{id: channel}
     }
   }
 
   pub fn channel_close(&self, channel: Channel, code: i32) {
     unsafe {
-      rabbitmq::amqp_channel_close(cast::transmute(self.state), channel.id, code);
+      rabbitmq::amqp_channel_close(self.state, channel.id, code);
     }
   }
 
@@ -109,7 +109,7 @@ impl<'a> Connection <'a>{
       ConnectionOpen => {
         unsafe {
           self.connection_state = ConnectionClosed;
-          Some(rabbitmq::amqp_connection_close(cast::transmute(self.state), code))
+          Some(rabbitmq::amqp_connection_close(self.state, code))
         }
       },
       ConnectionClosed => None
@@ -118,7 +118,7 @@ impl<'a> Connection <'a>{
 
   pub fn get_rpc_reply(&self) -> rabbitmq::amqp_rpc_reply_t {
     unsafe {
-      rabbitmq::amqp_get_rpc_reply(cast::transmute(self.state))
+      rabbitmq::amqp_get_rpc_reply(self.state)
     }
   }
 }
