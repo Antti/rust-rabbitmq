@@ -15,14 +15,15 @@ fn main(){
   	println!("Connected to RabbitMQ");
   }
   let log = con.login(~"/", 0, 131072, 0, amqp::AMQP_SASL_METHOD_PLAIN, ~"guest", ~"guest");
-  if log.reply_type == 1 {
+  if log.is_ok() {
   	println!("Logged in");
   }else{
-	println!("Error loggin in: {}", log);
+    println!("Error loggin in: {}", log);
   }
-  let chan = con.channel_open(1);
-  let reply = con.get_rpc_reply();
-  println!("Reply: {}", reply);
+  let chan = con.channel_open(1).unwrap();
+  let queue = con.queue_declare(chan, ~"testq123", false, false, false, false);
+  println!("{}", queue);
+
   con.channel_close(chan, amqp::AMQP_REPLY_SUCCESS);
   con.connection_close(amqp::AMQP_REPLY_SUCCESS);
 }

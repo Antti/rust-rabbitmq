@@ -6,12 +6,21 @@
 
 extern crate std;
 extern crate libc;
-use std::cast;
+use std::bool;
 
 mod rabbitmq;
 
 pub static AMQP_SASL_METHOD_PLAIN: u32 = rabbitmq::AMQP_SASL_METHOD_PLAIN;
 pub static AMQP_REPLY_SUCCESS: i32 = 200;
+
+pub type amqp_rpc_reply = rabbitmq::amqp_rpc_reply_t;
+
+#[deriving(Show)]
+pub struct amqp_queue_declare_ok {
+  pub queue: ~str,
+  pub message_count: u32,
+  pub consumer_count: u32,
+}
 
 pub enum SocketType {
   TcpSocket
@@ -46,7 +55,6 @@ impl Connection {
       unsafe {
         match rabbitmq::amqp_new_connection(){
           ptr @ _ if !ptr.is_null() => Some(ptr),
-          // ptr @ _ if ptr.to_uint() == 0 => None,
           _ => None
         }
       }
@@ -68,7 +76,7 @@ impl Connection {
     let socket = match socket_type{
       TcpSocket => match tcp_socket_new(state){
         Some(s) => s,
-        None => return Err(~"Error creating socket")
+        None => { unsafe{rabbitmq::amqp_destroy_connection(state);} return Err(~"Error creating socket")}
       }
     };
     Ok(~Connection { state: state, socket: socket, connection_state: ConnectionClosed })
@@ -84,17 +92,25 @@ impl Connection {
   }
 
   pub fn login(&self, vhost: ~str, channel_max: int, frame_max: int, heartbeat: int,
-             sasl_method: rabbitmq::amqp_sasl_method_enum, login: ~str, password: ~str) -> rabbitmq::amqp_rpc_reply_t {
+             sasl_method: rabbitmq::amqp_sasl_method_enum, login: ~str, password: ~str) -> Result<(),(rabbitmq::amqp_rpc_reply_t)> {
     unsafe {
-      rabbitmq::amqp_login(self.state, vhost.to_c_str().unwrap(), channel_max as i32, frame_max as i32, heartbeat as i32, sasl_method,
-                           login.to_c_str().unwrap(), password.to_c_str().unwrap())
+      let reply = rabbitmq::amqp_login(self.state, vhost.to_c_str().unwrap(), channel_max as i32, frame_max as i32, heartbeat as i32, sasl_method,
+                           login.to_c_str().unwrap(), password.to_c_str().unwrap());
+      match reply.reply_type {
+        rabbitmq::AMQP_RESPONSE_NORMAL => Ok(()),
+        _ => Err(reply)
+      }
     }
   }
 
-  pub fn channel_open(&self, channel: u16) -> Channel {
+  pub fn channel_open(&self, channel: u16) -> Option<Channel> {
     unsafe {
       let response = rabbitmq::amqp_channel_open(self.state, channel);
-      Channel{id: channel}
+      if response.is_null(){
+        None
+      } else {
+        Some(Channel{id: channel})
+      }
     }
   }
 
@@ -104,7 +120,16 @@ impl Connection {
     }
   }
 
-  pub fn connection_close(&mut self, code: i32) -> Option<rabbitmq::amqp_rpc_reply_t> {
+  //, arguments: rabbitmq::amqp_table_t
+  pub fn queue_declare(&self, channel: Channel, queue: ~str,  passive: bool, durable: bool, exclusive: bool, auto_delete: bool) -> amqp_queue_declare_ok {
+    unsafe {
+      let response = rabbitmq::amqp_queue_declare(self.state, channel.id, str_to_amqp_bytes(queue), bool::to_bit::<i32>(passive), bool::to_bit::<i32>(durable),
+        bool::to_bit::<i32>(exclusive), bool::to_bit::<i32>(auto_delete), rabbitmq::amqp_empty_table);
+      amqp_queue_declare_ok { queue: amqp_bytes_to_str((*response).queue), message_count: (*response).message_count,consumer_count: (*response).consumer_count }
+    }
+  }
+
+  pub fn connection_close(&mut self, code: i32) -> Option<amqp_rpc_reply> {
     match self.connection_state {
       ConnectionOpen => {
         unsafe {
@@ -116,7 +141,7 @@ impl Connection {
     }
   }
 
-  pub fn get_rpc_reply(&self) -> rabbitmq::amqp_rpc_reply_t {
+  pub fn get_rpc_reply(&self) -> amqp_rpc_reply {
     unsafe {
       rabbitmq::amqp_get_rpc_reply(self.state)
     }
@@ -134,6 +159,20 @@ pub fn version() -> ~str {
 pub fn version_number() -> uint {
   unsafe {
     return rabbitmq::amqp_version_number() as uint;
+  }
+}
+
+fn str_to_amqp_bytes(str: ~str) -> rabbitmq::amqp_bytes_t {
+  let bytes;
+  unsafe{
+    bytes = rabbitmq::Struct_amqp_bytes_t_ { len: str.len() as u64, bytes: std::cast::transmute(str.to_c_str().unwrap()) };
+  }
+  bytes
+}
+
+pub fn amqp_bytes_to_str(bytes: rabbitmq::amqp_bytes_t) -> ~str {
+  unsafe {
+    std::str::raw::from_buf_len(std::cast::transmute(bytes.bytes), bytes.len as uint)
   }
 }
 
