@@ -21,8 +21,12 @@ fn main(){
     println!("Error loggin in: {}", log);
   }
   let chan = con.channel_open(1).unwrap();
-  let queue = con.queue_declare(chan, ~"testq123", false, false, false, false);
+  let queue = con.queue_declare(chan, ~"testq123", false, false, false, false, None);
   println!("{}", queue);
+
+  //channel: Channel, exchange: ~str, routing_key: ~str, mandatory: bool, immediate: bool, properties: amqp_basic_properties, body: ~str
+  // let status = con.basic_publish(chan, ~"amq.direct", ~"testq123", false, false, None, ~"hello");
+  // println!("{}", status);
 
   con.channel_close(chan, amqp::AMQP_REPLY_SUCCESS);
   con.connection_close(amqp::AMQP_REPLY_SUCCESS);

@@ -7,6 +7,7 @@
 extern crate std;
 extern crate libc;
 use std::bool;
+use std::cast;
 
 mod rabbitmq;
 
@@ -33,7 +34,6 @@ enum ConnectionState {
 
 pub struct Connection{
   state: rabbitmq::amqp_connection_state_t,
-  socket: *mut rabbitmq::amqp_socket_t,
   connection_state: ConnectionState
 }
 
@@ -73,18 +73,18 @@ impl Connection {
       Some(s) => s,
       None => return Err(~"Error allocating new connection")
     };
-    let socket = match socket_type{
+    match socket_type{
       TcpSocket => match tcp_socket_new(state){
         Some(s) => s,
         None => { unsafe{rabbitmq::amqp_destroy_connection(state);} return Err(~"Error creating socket")}
       }
     };
-    Ok(~Connection { state: state, socket: socket, connection_state: ConnectionClosed })
+    Ok(~Connection { state: state, connection_state: ConnectionClosed })
   }
 
   pub fn socket_open(&mut self, hostname: ~str, port: uint) -> Result<(), (~str, i32)> {
     unsafe {
-      match rabbitmq::amqp_socket_open(self.socket, hostname.to_c_str().unwrap(), port as i32){
+      match rabbitmq::amqp_socket_open((*self.state).socket, hostname.to_c_str().unwrap(), port as i32){
         0 => { self.connection_state = ConnectionOpen; Ok(()) },
         code @ _ => Err((error_string(code), code))
       }
@@ -121,10 +121,14 @@ impl Connection {
   }
 
   //, arguments: rabbitmq::amqp_table_t
-  pub fn queue_declare(&self, channel: Channel, queue: ~str,  passive: bool, durable: bool, exclusive: bool, auto_delete: bool) -> amqp_queue_declare_ok {
+  pub fn queue_declare(&self, channel: Channel, queue: ~str,  passive: bool, durable: bool, exclusive: bool, auto_delete: bool, arguments: Option<rabbitmq::amqp_table_t>) -> amqp_queue_declare_ok {
     unsafe {
+      let args = match arguments{
+        Some(args) => args,
+        None => rabbitmq::amqp_empty_table
+      };
       let response = rabbitmq::amqp_queue_declare(self.state, channel.id, str_to_amqp_bytes(queue), bool::to_bit::<i32>(passive), bool::to_bit::<i32>(durable),
-        bool::to_bit::<i32>(exclusive), bool::to_bit::<i32>(auto_delete), rabbitmq::amqp_empty_table);
+        bool::to_bit::<i32>(exclusive), bool::to_bit::<i32>(auto_delete), args);
       amqp_queue_declare_ok { queue: amqp_bytes_to_str((*response).queue), message_count: (*response).message_count,consumer_count: (*response).consumer_count }
     }
   }
@@ -163,11 +167,9 @@ pub fn version_number() -> uint {
 }
 
 fn str_to_amqp_bytes(str: ~str) -> rabbitmq::amqp_bytes_t {
-  let bytes;
-  unsafe{
-    bytes = rabbitmq::Struct_amqp_bytes_t_ { len: str.len() as u64, bytes: std::cast::transmute(str.to_c_str().unwrap()) };
+  unsafe {
+    rabbitmq::Struct_amqp_bytes_t_ { len: str.len() as u64, bytes: std::cast::transmute(str.to_c_str().unwrap()) }
   }
-  bytes
 }
 
 pub fn amqp_bytes_to_str(bytes: rabbitmq::amqp_bytes_t) -> ~str {
