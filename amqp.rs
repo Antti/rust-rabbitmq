@@ -16,11 +16,78 @@ pub static AMQP_REPLY_SUCCESS: i32 = 200;
 
 pub type amqp_rpc_reply = rabbitmq::amqp_rpc_reply_t;
 
+trait TableField {
+  fn value(&self) -> [u64, ..2u];
+  fn kind(&self) -> u8;
+  fn to_rabbit(&self) -> rabbitmq::amqp_field_value_t {
+    rabbitmq::Struct_amqp_field_value_t_ { value: unsafe { cast::transmute(self.value()) }, kind: self.kind() }
+  }
+}
+
+
+impl TableField for u32 {
+  fn value(&self) -> [u64, ..2u] {
+    [*self as u64, 0]
+  }
+  fn kind(&self) -> u8 {
+    'I' as u8
+  }
+}
+
 #[deriving(Show)]
 pub struct amqp_queue_declare_ok {
   pub queue: ~str,
   pub message_count: u32,
   pub consumer_count: u32,
+}
+
+#[deriving(Default)]
+pub struct amqp_table {
+    pub entries: ~[rabbitmq::Struct_amqp_table_entry_t_]
+}
+
+#[deriving(Default)]
+pub struct amqp_basic_properties {
+    pub _flags: u32,
+    pub content_type: ~str,
+    pub content_encoding: ~str,
+    pub headers: amqp_table,
+    pub delivery_mode: u8,
+    pub priority: u8,
+    pub correlation_id: ~str,
+    pub reply_to: ~str,
+    pub expiration: ~str,
+    pub message_id: ~str,
+    pub timestamp: u64,
+    pub _type: ~str,
+    pub user_id: ~str,
+    pub app_id: ~str,
+    pub cluster_id: ~str,
+}
+
+impl amqp_table {
+  fn to_rabbit(&self) -> rabbitmq::Struct_amqp_table_t_ {
+    unsafe {
+      rabbitmq::Struct_amqp_table_t_ { num_entries: self.entries.len() as i32, entries: cast::transmute::<_,*mut rabbitmq::amqp_table_entry_t>(self.entries.as_ptr())}
+    }
+  }
+
+  pub fn add_entry<T: TableField>(&mut self, key: ~str, value: T) {
+    self.entries.push(rabbitmq::Struct_amqp_table_entry_t_ { key: str_to_amqp_bytes(key), value: unsafe { cast::transmute(value.to_rabbit()) } } )
+  }
+}
+
+impl amqp_basic_properties {
+  fn to_rabbit(&self) -> rabbitmq::Struct_amqp_basic_properties_t_ {
+    let flags = 0;
+    rabbitmq::Struct_amqp_basic_properties_t_ { _flags: self._flags, content_type: str_to_amqp_bytes(self.content_type.clone()),
+      content_encoding: str_to_amqp_bytes(self.content_encoding.clone()),
+      headers: self.headers.to_rabbit(), delivery_mode: self.delivery_mode, priority: self.priority, correlation_id: str_to_amqp_bytes(self.correlation_id.clone()),
+      reply_to: str_to_amqp_bytes(self.reply_to.clone()), expiration: str_to_amqp_bytes(self.expiration.clone()), message_id: str_to_amqp_bytes(self.message_id.clone()),
+      timestamp: self.timestamp, _type: str_to_amqp_bytes(self._type.clone()), user_id: str_to_amqp_bytes(self.user_id.clone()),
+      app_id: str_to_amqp_bytes(self.app_id.clone()), cluster_id: str_to_amqp_bytes(self.cluster_id.clone())
+     }
+  }
 }
 
 pub enum SocketType {
@@ -45,6 +112,7 @@ pub struct Channel {
 impl std::ops::Drop for Connection {
   fn drop(&mut self) {
     self.connection_close(AMQP_REPLY_SUCCESS);
+    unsafe{ rabbitmq::amqp_destroy_connection(self.state) };
   }
 }
 
@@ -120,11 +188,10 @@ impl Connection {
     }
   }
 
-  //, arguments: rabbitmq::amqp_table_t
-  pub fn queue_declare(&self, channel: Channel, queue: ~str,  passive: bool, durable: bool, exclusive: bool, auto_delete: bool, arguments: Option<rabbitmq::amqp_table_t>) -> amqp_queue_declare_ok {
+  pub fn queue_declare(&self, channel: Channel, queue: ~str,  passive: bool, durable: bool, exclusive: bool, auto_delete: bool, arguments: Option<amqp_table>) -> amqp_queue_declare_ok {
     unsafe {
       let args = match arguments{
-        Some(args) => args,
+        Some(args) => args.to_rabbit(),
         None => rabbitmq::amqp_empty_table
       };
       let response = rabbitmq::amqp_queue_declare(self.state, channel.id, str_to_amqp_bytes(queue), bool::to_bit::<i32>(passive), bool::to_bit::<i32>(durable),
@@ -150,6 +217,15 @@ impl Connection {
       rabbitmq::amqp_get_rpc_reply(self.state)
     }
   }
+  pub fn basic_publish(&self, channel: Channel, exchange: ~str, routing_key: ~str, mandatory: bool, immediate: bool, properties: Option<amqp_basic_properties>, body: ~str) -> i32 {
+    unsafe{
+      let props = match properties {
+        Some(prop) => cast::transmute(&prop.to_rabbit()),
+        None => std::ptr::null::<rabbitmq::amqp_basic_properties_t>()
+      };
+      rabbitmq::amqp_basic_publish(self.state, channel.id, str_to_amqp_bytes(exchange), str_to_amqp_bytes(routing_key), bool::to_bit::<i32>(mandatory), bool::to_bit::<i32>(immediate), props, str_to_amqp_bytes(body))
+    }
+  }
 }
 
 
@@ -166,9 +242,9 @@ pub fn version_number() -> uint {
   }
 }
 
-fn str_to_amqp_bytes(str: ~str) -> rabbitmq::amqp_bytes_t {
+fn str_to_amqp_bytes(string: &str) -> rabbitmq::amqp_bytes_t {
   unsafe {
-    rabbitmq::Struct_amqp_bytes_t_ { len: str.len() as u64, bytes: std::cast::transmute(str.to_c_str().unwrap()) }
+    rabbitmq::Struct_amqp_bytes_t_ { len: string.len() as u64, bytes: std::cast::transmute(string.to_c_str().unwrap()) }
   }
 }
 

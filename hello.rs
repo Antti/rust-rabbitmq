@@ -21,12 +21,15 @@ fn main(){
     println!("Error loggin in: {}", log);
   }
   let chan = con.channel_open(1).unwrap();
+  // let mut table = amqp::amqp_table { entries: ~[] };
+  // table.add_entry(~"hi", 1 as u32);
   let queue = con.queue_declare(chan, ~"testq123", false, false, false, false, None);
   println!("{}", queue);
 
-  //channel: Channel, exchange: ~str, routing_key: ~str, mandatory: bool, immediate: bool, properties: amqp_basic_properties, body: ~str
-  // let status = con.basic_publish(chan, ~"amq.direct", ~"testq123", false, false, None, ~"hello");
-  // println!("{}", status);
+  //(1 << 15) | (1 << 12)
+  let properties = amqp::amqp_basic_properties { _flags: (1 << 15) , content_type: ~"text/plain", delivery_mode: 1, ..std::default::Default::default()};
+  let status = con.basic_publish(chan, ~"", ~"testq123", false, false, Some(properties), ~"hello from rust!");
+  println!("{}", status);
 
   con.channel_close(chan, amqp::AMQP_REPLY_SUCCESS);
   con.connection_close(amqp::AMQP_REPLY_SUCCESS);
