@@ -16,6 +16,14 @@ pub static AMQP_REPLY_SUCCESS: i32 = 200;
 
 pub type amqp_rpc_reply = rabbitmq::amqp_rpc_reply_t;
 
+enum AMQPMethod {
+  AMQP_QUEUE_DECLARE_METHOD = 0x0032000A,
+  AMQP_QUEUE_DECLARE_OK_METHOD = 0x0032000B,
+  AMQP_QUEUE_BIND_METHOD = 0x00320014,
+  AMQP_QUEUE_BIND_OK_METHOD = 0x00320015,
+
+}
+
 trait TableField {
   fn value(&self) -> [u64, ..2u];
   fn kind(&self) -> u8;
@@ -195,11 +203,18 @@ impl Connection {
     }
   }
 
-  pub fn queue_declare(&self, channel: Channel, queue: ~str,  passive: bool, durable: bool, exclusive: bool, auto_delete: bool, arguments: Option<amqp_table>) -> amqp_queue_declare_ok {
+  pub fn simple_rpc(&self, channel: Channel, request_id: AMQPMethod, reply_id: AMQPMethod, decoded_request_method: *mut libc::c_void) -> amqp_rpc_reply {
+    let expected_reply_ids = ~[reply_id as u32, 0];
+    unsafe {
+      rabbitmq::amqp_simple_rpc(self.state, channel.id, request_id as u32, cast::transmute(&expected_reply_ids), decoded_request_method)
+    }
+  }
+
+  pub fn queue_declare(&self, channel: Channel, queue: ~str,  passive: bool, durable: bool, exclusive: bool, auto_delete: bool, arguments: Option<amqp_table>) -> Result<amqp_queue_declare_ok, i32> {
     unsafe {
       let args = match arguments{
         Some(args) => args.to_rabbit(),
-        None => rabbitmq::amqp_empty_table
+        None => (amqp_table{entries: ~[] }).to_rabbit()
       };
 
       let req = rabbitmq::Struct_amqp_queue_declare_t_{
@@ -213,16 +228,32 @@ impl Connection {
         arguments :   args,
       };
 
-      let response = self.simple_rpc(channel, 0x0032000A, 0x0032000B, cast::transmute(&req));
-      let reply : &rabbitmq::Struct_amqp_queue_declare_ok_t_ = cast::transmute(response.reply.decoded);
+      let response = self.simple_rpc(channel, AMQP_QUEUE_DECLARE_METHOD, AMQP_QUEUE_DECLARE_OK_METHOD, cast::transmute(&req));
+      if response.reply_type == rabbitmq::AMQP_RESPONSE_NORMAL{
+        let reply : &rabbitmq::Struct_amqp_queue_declare_ok_t_ = cast::transmute(response.reply.decoded);
+        Ok(amqp_queue_declare_ok { queue: amqp_bytes_to_str(reply.queue), message_count: reply.message_count, consumer_count: reply.consumer_count })
+      }else{
+        Err(response.library_error)
+      }
 
-      amqp_queue_declare_ok { queue: amqp_bytes_to_str(reply.queue), message_count: reply.message_count, consumer_count: reply.consumer_count }
     }
   }
 
-  pub fn queue_bind(&self, channel: Channel, queue: ~str, exchange: ~str, routing_key: ~str, arguments: amqp_table) {
+  pub fn queue_bind(&self, channel: Channel, queue: ~str, exchange: ~str, routing_key: ~str, arguments: Option<amqp_table>) {
     unsafe {
-      rabbitmq::amqp_queue_bind(self.state, channel.id, str_to_amqp_bytes(queue), str_to_amqp_bytes(exchange), str_to_amqp_bytes(routing_key), arguments.to_rabbit());
+      let args = match arguments{
+        Some(args) => args.to_rabbit(),
+        None => (amqp_table{entries: ~[] }).to_rabbit()
+      };
+      let req = rabbitmq::Struct_amqp_queue_bind_t_ {
+        ticket: 0,
+        queue: str_to_amqp_bytes(queue),
+        exchange: str_to_amqp_bytes(exchange),
+        routing_key: str_to_amqp_bytes(routing_key),
+        nowait: 0,
+        arguments: args,
+      };
+      let response = self.simple_rpc(channel, AMQP_QUEUE_DECLARE_METHOD, AMQP_QUEUE_DECLARE_OK_METHOD, cast::transmute(&req));
     }
   }
 
@@ -245,13 +276,6 @@ impl Connection {
         }
       },
       ConnectionClosed => None
-    }
-  }
-
-  pub fn simple_rpc(&self, channel: Channel, request_id: u32, reply_id: u32, decoded_request_method: *mut libc::c_void) -> amqp_rpc_reply {
-    let expected_reply_ids = ~[reply_id, 0];
-    unsafe {
-      rabbitmq::amqp_simple_rpc(self.state, channel.id, request_id, cast::transmute(&expected_reply_ids), decoded_request_method)
     }
   }
 
