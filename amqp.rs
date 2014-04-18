@@ -134,50 +134,34 @@ impl std::ops::Drop for Connection {
 impl Connection {
   pub fn new(socket_type: SocketType) -> Result<~Connection, ~str> {
 
-    fn new_connection() -> Option<rabbitmq::amqp_connection_state_t> {
-      unsafe {
-        match rabbitmq::amqp_new_connection(){
-          ptr @ _ if !ptr.is_null() => Some(ptr),
-          _ => None
-        }
-      }
-    }
-
-    fn tcp_socket_new(state: rabbitmq::amqp_connection_state_t) -> Option<*mut rabbitmq::amqp_socket_t> {
-      unsafe {
-        match rabbitmq::amqp_tcp_socket_new(state){
-          ptr @ _ if !ptr.is_null() => Some(ptr),
-          _ => None
-        }
-      }
-    }
-
-    let state = match new_connection() {
-      Some(s) => s,
-      None => return Err(~"Error allocating new connection")
+    let state = match unsafe { rabbitmq::amqp_new_connection() } {
+      ptr @ _ if !ptr.is_null() => ptr,
+      _ => return Err(~"Error allocating new connection")
     };
+
     match socket_type{
-      TcpSocket => match tcp_socket_new(state){
-        Some(s) => s,
-        None => { unsafe{rabbitmq::amqp_destroy_connection(state);} return Err(~"Error creating socket")}
+      TcpSocket => match unsafe { rabbitmq::amqp_tcp_socket_new(state) }{
+        ptr @ _ if !ptr.is_null() => ptr,
+        _ => { unsafe{rabbitmq::amqp_destroy_connection(state);} return Err(~"Error creating socket")}
       }
     };
+
     Ok(~Connection { state: state, connection_state: ConnectionClosed })
   }
 
-  pub fn socket_open(&mut self, hostname: ~str, port: uint) -> Result<(), (~str, i32)> {
+  pub fn socket_open(&mut self, hostname: ~str, port: Option<uint>) -> Result<(), (~str, i32)> {
     unsafe {
-      match rabbitmq::amqp_socket_open((*self.state).socket, hostname.to_c_str().unwrap(), port as i32){
+      match rabbitmq::amqp_socket_open((*self.state).socket, hostname.to_c_str().unwrap(), port.unwrap_or(5672) as i32){
         0 => { self.connection_state = ConnectionOpen; Ok(()) },
         code @ _ => Err((error_string(code), code))
       }
     }
   }
 
-  pub fn login(&self, vhost: ~str, channel_max: int, frame_max: int, heartbeat: int,
+  pub fn login(&self, vhost: ~str, channel_max: int, frame_max: Option<int>, heartbeat: int,
              sasl_method: rabbitmq::amqp_sasl_method_enum, login: ~str, password: ~str) -> Result<(),(rabbitmq::amqp_rpc_reply_t)> {
     unsafe {
-      let reply = rabbitmq::amqp_login(self.state, vhost.to_c_str().unwrap(), channel_max as i32, frame_max as i32, heartbeat as i32, sasl_method,
+      let reply = rabbitmq::amqp_login(self.state, vhost.to_c_str().unwrap(), channel_max as i32, frame_max.unwrap_or(131072) as i32, heartbeat as i32, sasl_method,
                            login.to_c_str().unwrap(), password.to_c_str().unwrap());
       match reply.reply_type {
         rabbitmq::AMQP_RESPONSE_NORMAL => Ok(()),
@@ -229,7 +213,7 @@ impl Connection {
       };
 
       let response = self.simple_rpc(channel, AMQP_QUEUE_DECLARE_METHOD, AMQP_QUEUE_DECLARE_OK_METHOD, cast::transmute(&req));
-      if response.reply_type == rabbitmq::AMQP_RESPONSE_NORMAL{
+      if response.reply_type == rabbitmq::AMQP_RESPONSE_NORMAL {
         let reply : &rabbitmq::Struct_amqp_queue_declare_ok_t_ = cast::transmute(response.reply.decoded);
         Ok(amqp_queue_declare_ok { queue: amqp_bytes_to_str(reply.queue), message_count: reply.message_count, consumer_count: reply.consumer_count })
       }else{
@@ -239,7 +223,7 @@ impl Connection {
     }
   }
 
-  pub fn queue_bind(&self, channel: Channel, queue: ~str, exchange: ~str, routing_key: ~str, arguments: Option<amqp_table>) {
+  pub fn queue_bind(&self, channel: Channel, queue: ~str, exchange: ~str, routing_key: ~str, arguments: Option<amqp_table>) -> Result<(), i32> {
     unsafe {
       let args = match arguments{
         Some(args) => args.to_rabbit(),
@@ -254,6 +238,11 @@ impl Connection {
         arguments: args,
       };
       let response = self.simple_rpc(channel, AMQP_QUEUE_DECLARE_METHOD, AMQP_QUEUE_DECLARE_OK_METHOD, cast::transmute(&req));
+      if response.reply_type == rabbitmq::AMQP_RESPONSE_NORMAL{
+        Ok(())
+      }else{
+        Err(response.library_error)
+      }
     }
   }
 

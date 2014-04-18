@@ -4,7 +4,8 @@ extern crate libc;
 fn main(){
   println!("librabbitmq-c {}", amqp::version());
   let mut con = amqp::Connection::new(amqp::TcpSocket).unwrap();
-  let result = con.socket_open(~"localhost", 5672);
+  let result = con.socket_open(~"localhost", None);
+
   if result.is_err() {
   	let errno = std::os::errno();
   	unsafe {
@@ -14,7 +15,7 @@ fn main(){
   } else{
   	println!("Connected to RabbitMQ");
   }
-  let log = con.login(~"/", 0, 131072, 0, amqp::AMQP_SASL_METHOD_PLAIN, ~"guest", ~"guest");
+  let log = con.login(~"/", 0, None, 0, amqp::AMQP_SASL_METHOD_PLAIN, ~"guest", ~"guest");
   if log.is_ok() {
   	println!("Logged in");
   }else{
