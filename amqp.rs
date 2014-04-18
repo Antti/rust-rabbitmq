@@ -9,7 +9,7 @@ extern crate libc;
 use std::bool;
 use std::cast;
 
-mod rabbitmq;
+mod rabbitmq; //bindings
 
 pub static AMQP_SASL_METHOD_PLAIN: u32 = rabbitmq::AMQP_SASL_METHOD_PLAIN;
 pub static AMQP_REPLY_SUCCESS: i32 = 200;
@@ -201,10 +201,22 @@ impl Connection {
         Some(args) => args.to_rabbit(),
         None => rabbitmq::amqp_empty_table
       };
-      let response = rabbitmq::amqp_queue_declare(self.state, channel.id, str_to_amqp_bytes(queue), bool::to_bit::<i32>(passive), bool::to_bit::<i32>(durable),
-        bool::to_bit::<i32>(exclusive), bool::to_bit::<i32>(auto_delete), args);
-      //TODO: Check for null ptr
-      amqp_queue_declare_ok { queue: amqp_bytes_to_str((*response).queue), message_count: (*response).message_count,consumer_count: (*response).consumer_count }
+
+      let req = rabbitmq::Struct_amqp_queue_declare_t_{
+        ticket :      0,
+        queue :       str_to_amqp_bytes(queue),
+        passive :     bool::to_bit::<i32>(passive),
+        durable :     bool::to_bit::<i32>(durable),
+        exclusive :   bool::to_bit::<i32>(exclusive),
+        auto_delete : bool::to_bit::<i32>(auto_delete),
+        nowait :      0,
+        arguments :   args,
+      };
+
+      let response = self.simple_rpc(channel, 0x0032000A, 0x0032000B, cast::transmute(&req));
+      let reply : &rabbitmq::Struct_amqp_queue_declare_ok_t_ = cast::transmute(response.reply.decoded);
+
+      amqp_queue_declare_ok { queue: amqp_bytes_to_str(reply.queue), message_count: reply.message_count, consumer_count: reply.consumer_count }
     }
   }
 
@@ -237,17 +249,11 @@ impl Connection {
   }
 
   pub fn simple_rpc(&self, channel: Channel, request_id: u32, reply_id: u32, decoded_request_method: *mut libc::c_void) -> amqp_rpc_reply {
-    let expected_reply_ids = [reply_id, 0];
+    let expected_reply_ids = ~[reply_id, 0];
     unsafe {
       rabbitmq::amqp_simple_rpc(self.state, channel.id, request_id, cast::transmute(&expected_reply_ids), decoded_request_method)
     }
   }
-
-  // pub fn get_rpc_reply(&self) -> amqp_rpc_reply {
-  //   unsafe {
-  //     rabbitmq::amqp_get_rpc_reply(self.state)
-  //   }
-  // }
 
 }
 
@@ -271,7 +277,7 @@ fn str_to_amqp_bytes(string: &str) -> rabbitmq::amqp_bytes_t {
   }
 }
 
-pub fn amqp_bytes_to_str(bytes: rabbitmq::amqp_bytes_t) -> ~str {
+fn amqp_bytes_to_str(bytes: rabbitmq::amqp_bytes_t) -> ~str {
   unsafe {
     std::str::raw::from_buf_len(std::cast::transmute(bytes.bytes), bytes.len as uint)
   }
