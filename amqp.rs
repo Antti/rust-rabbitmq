@@ -41,6 +41,13 @@ pub struct amqp_queue_declare_ok {
   pub consumer_count: u32,
 }
 
+#[deriving(Show)]
+pub struct amqp_queue_purge {
+  pub ticket: u16,
+  pub queue: ~str,
+  pub nowait: bool
+}
+
 #[deriving(Default)]
 pub struct amqp_table {
     pub entries: ~[rabbitmq::Struct_amqp_table_entry_t_]
@@ -196,7 +203,24 @@ impl Connection {
       };
       let response = rabbitmq::amqp_queue_declare(self.state, channel.id, str_to_amqp_bytes(queue), bool::to_bit::<i32>(passive), bool::to_bit::<i32>(durable),
         bool::to_bit::<i32>(exclusive), bool::to_bit::<i32>(auto_delete), args);
+      //TODO: Check for null ptr
       amqp_queue_declare_ok { queue: amqp_bytes_to_str((*response).queue), message_count: (*response).message_count,consumer_count: (*response).consumer_count }
+    }
+  }
+
+  pub fn queue_bind(&self, channel: Channel, queue: ~str, exchange: ~str, routing_key: ~str, arguments: amqp_table) {
+    unsafe {
+      rabbitmq::amqp_queue_bind(self.state, channel.id, str_to_amqp_bytes(queue), str_to_amqp_bytes(exchange), str_to_amqp_bytes(routing_key), arguments.to_rabbit());
+    }
+  }
+
+  pub fn basic_publish(&self, channel: Channel, exchange: ~str, routing_key: ~str, mandatory: bool, immediate: bool, properties: Option<amqp_basic_properties>, body: ~str) -> i32 {
+    unsafe{
+      let props = match properties {
+        Some(prop) => cast::transmute(&prop.to_rabbit()),
+        None => std::ptr::null::<rabbitmq::amqp_basic_properties_t>()
+      };
+      rabbitmq::amqp_basic_publish(self.state, channel.id, str_to_amqp_bytes(exchange), str_to_amqp_bytes(routing_key), bool::to_bit::<i32>(mandatory), bool::to_bit::<i32>(immediate), props, str_to_amqp_bytes(body))
     }
   }
 
@@ -212,20 +236,19 @@ impl Connection {
     }
   }
 
-  pub fn get_rpc_reply(&self) -> amqp_rpc_reply {
+  pub fn simple_rpc(&self, channel: Channel, request_id: u32, reply_id: u32, decoded_request_method: *mut libc::c_void) -> amqp_rpc_reply {
+    let expected_reply_ids = [reply_id, 0];
     unsafe {
-      rabbitmq::amqp_get_rpc_reply(self.state)
+      rabbitmq::amqp_simple_rpc(self.state, channel.id, request_id, cast::transmute(&expected_reply_ids), decoded_request_method)
     }
   }
-  pub fn basic_publish(&self, channel: Channel, exchange: ~str, routing_key: ~str, mandatory: bool, immediate: bool, properties: Option<amqp_basic_properties>, body: ~str) -> i32 {
-    unsafe{
-      let props = match properties {
-        Some(prop) => cast::transmute(&prop.to_rabbit()),
-        None => std::ptr::null::<rabbitmq::amqp_basic_properties_t>()
-      };
-      rabbitmq::amqp_basic_publish(self.state, channel.id, str_to_amqp_bytes(exchange), str_to_amqp_bytes(routing_key), bool::to_bit::<i32>(mandatory), bool::to_bit::<i32>(immediate), props, str_to_amqp_bytes(body))
-    }
-  }
+
+  // pub fn get_rpc_reply(&self) -> amqp_rpc_reply {
+  //   unsafe {
+  //     rabbitmq::amqp_get_rpc_reply(self.state)
+  //   }
+  // }
+
 }
 
 

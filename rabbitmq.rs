@@ -1369,8 +1369,6 @@ extern "C" {
      *mut amqp_socket_t;
     pub fn amqp_get_server_properties(state: amqp_connection_state_t) ->
      *mut amqp_table_t;
-    pub fn amqp_hostcheck(match_pattern: *c_schar, hostname: *c_schar) ->
-     c_int;
     pub fn amqp_os_error_string(err: c_int) -> *mut c_schar;
     pub fn amqp_os_socket_error() -> c_int;
     pub fn amqp_os_socket_close(sockfd: c_int) -> c_int;
@@ -1407,18 +1405,6 @@ extern "C" {
     pub fn amqp_try_recv(state: amqp_connection_state_t,
                          current_time: uint64_t) -> c_int;
     pub fn amqp_abort(fmt: *c_schar, ...);
-    pub fn amqp_ssl_socket_new(state: amqp_connection_state_t) ->
-     *mut amqp_socket_t;
-    pub fn amqp_ssl_socket_set_cacert(_self: *mut amqp_socket_t,
-                                      cacert: *c_schar) -> c_int;
-    pub fn amqp_ssl_socket_set_key(_self: *mut amqp_socket_t, cert: *c_schar,
-                                   key: *c_schar) -> c_int;
-    pub fn amqp_ssl_socket_set_key_buffer(_self: *mut amqp_socket_t,
-                                          cert: *c_schar, key: *c_void,
-                                          n: size_t) -> c_int;
-    pub fn amqp_ssl_socket_set_verify(_self: *mut amqp_socket_t,
-                                      verify: amqp_boolean_t);
-    pub fn amqp_set_initialize_ssl_library(do_initialize: amqp_boolean_t);
     pub fn amqp_tcp_socket_new(state: amqp_connection_state_t) ->
      *mut amqp_socket_t;
     pub fn amqp_tcp_socket_set_sockfd(_self: *mut amqp_socket_t,

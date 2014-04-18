@@ -28,8 +28,7 @@ fn main(){
 
   //(1 << 15) | (1 << 12)
   let properties = amqp::amqp_basic_properties { _flags: (1 << 15) , content_type: ~"text/plain", delivery_mode: 1, ..std::default::Default::default()};
-  let status = con.basic_publish(chan, ~"", ~"testq123", false, false, Some(properties), ~"hello from rust!");
-  println!("{}", status);
+  con.basic_publish(chan, ~"", ~"testq123", false, false, Some(properties), ~"hello from rust!");
 
   con.channel_close(chan, amqp::AMQP_REPLY_SUCCESS);
   con.connection_close(amqp::AMQP_REPLY_SUCCESS);
