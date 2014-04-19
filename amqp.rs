@@ -228,7 +228,7 @@ impl Connection {
     }
   }
 
-  pub fn queue_bind(&self, channel: Channel, queue: ~str, exchange: ~str, routing_key: ~str, arguments: Option<amqp_table>) -> Result<(), int> {
+  pub fn queue_bind(&self, channel: Channel, queue: ~str, exchange: ~str, routing_key: ~str, arguments: Option<amqp_table>) -> Result<(), ~str> {
     unsafe {
       let args = match arguments{
         Some(args) => args.to_rabbit(),
@@ -246,7 +246,7 @@ impl Connection {
       if response.reply_type == rabbitmq::AMQP_RESPONSE_NORMAL{
         Ok(())
       }else{
-        Err(response.library_error as int)
+        Err(error_string(response.library_error))
       }
     }
   }
@@ -272,20 +272,19 @@ impl Connection {
     }
   }
 
-  pub fn consume_message(&self, timeout: Option<*mut rabbitmq::Struct_timeval>, flags: Option<int>) -> Result<amqp_message, int> {
+  pub fn consume_message(&self, timeout: Option<*mut rabbitmq::Struct_timeval>, flags: Option<int>) -> Result<amqp_message, ~str> {
     unsafe {
       let to = timeout.unwrap_or(cast::transmute(std::ptr::null::<rabbitmq::Struct_timeval>()));
-      let envelope : *mut rabbitmq::amqp_envelope_t = cast::transmute(std::rt::global_heap::malloc_raw(std::mem::size_of::<rabbitmq::Struct_amqp_envelope_t_>()));
-      let reply = rabbitmq::amqp_consume_message(self.state, envelope, to, flags.unwrap_or(0) as i32);
+      let mut envelope = Vec::with_capacity(std::mem::size_of::<rabbitmq::Struct_amqp_envelope_t_>());
+      let penvelope  = envelope.as_mut_ptr();
+      let reply = rabbitmq::amqp_consume_message(self.state, penvelope, to, flags.unwrap_or(0) as i32);
       if reply.reply_type == rabbitmq::AMQP_RESPONSE_NORMAL {
-        let msg = amqp_message{ body: amqp_bytes_to_str((*envelope).message.body) };
-        destroy_envelope(envelope);
-        std::rt::global_heap::exchange_free(envelope as *u8);
+        let msg = amqp_message { body: amqp_bytes_to_str((*penvelope).message.body) };
+        destroy_envelope(penvelope);
         Ok(msg)
       } else {
-        destroy_envelope(envelope);
-        std::rt::global_heap::exchange_free(envelope as *u8);
-        Err(reply.library_error as int)
+        destroy_envelope(penvelope);
+        Err(error_string(reply.library_error))
       }
     }
   }
@@ -299,6 +298,12 @@ impl Connection {
         }
       },
       ConnectionClosed => None
+    }
+  }
+
+  fn maybe_release_buffers(&self) {
+    unsafe {
+      rabbitmq::amqp_maybe_release_buffers(self.state);
     }
   }
 
