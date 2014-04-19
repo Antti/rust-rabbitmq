@@ -21,7 +21,10 @@ enum AMQPMethod {
   AMQP_QUEUE_DECLARE_OK_METHOD = 0x0032000B,
   AMQP_QUEUE_BIND_METHOD = 0x00320014,
   AMQP_QUEUE_BIND_OK_METHOD = 0x00320015,
-
+  AMQP_CONNECTION_CLOSE_METHOD = 0x000A0032,
+  AMQP_CONNECTION_CLOSE_OK_METHOD = 0x000A0033,
+  AMQP_CHANNEL_CLOSE_METHOD = 0x00140028,
+  AMQP_CHANNEL_CLOSE_OK_METHOD = 0x00140029,
 }
 
 trait TableField {
@@ -31,7 +34,6 @@ trait TableField {
     rabbitmq::Struct_amqp_field_value_t_ { value: unsafe { cast::transmute(self.value()) }, kind: self.kind() }
   }
 }
-
 
 impl TableField for u32 {
   fn value(&self) -> [u64, ..2u] {
@@ -147,7 +149,7 @@ impl Connection {
     match socket_type{
       TcpSocket => match unsafe { rabbitmq::amqp_tcp_socket_new(state) }{
         ptr @ _ if !ptr.is_null() => ptr,
-        _ => { unsafe{rabbitmq::amqp_destroy_connection(state);} return Err(~"Error creating socket")}
+        _ => { return Err(~"Error creating socket")}
       }
     };
 
@@ -164,13 +166,13 @@ impl Connection {
   }
 
   pub fn login(&self, vhost: ~str, channel_max: int, frame_max: Option<int>, heartbeat: int,
-             sasl_method: rabbitmq::amqp_sasl_method_enum, login: ~str, password: ~str) -> Result<(),(rabbitmq::amqp_rpc_reply_t)> {
+             sasl_method: rabbitmq::amqp_sasl_method_enum, login: ~str, password: ~str) -> Result<(),~str> {
     unsafe {
       let reply = rabbitmq::amqp_login(self.state, vhost.to_c_str().unwrap(), channel_max as i32, frame_max.unwrap_or(131072) as i32, heartbeat as i32, sasl_method,
                            login.to_c_str().unwrap(), password.to_c_str().unwrap());
       match reply.reply_type {
         rabbitmq::AMQP_RESPONSE_NORMAL => Ok(()),
-        _ => Err(reply)
+        _ => Err(reply_to_error(reply))
       }
     }
   }
@@ -199,7 +201,7 @@ impl Connection {
     }
   }
 
-  pub fn queue_declare(&self, channel: Channel, queue: ~str,  passive: bool, durable: bool, exclusive: bool, auto_delete: bool, arguments: Option<amqp_table>) -> Result<amqp_queue_declare_ok, i32> {
+  pub fn queue_declare(&self, channel: Channel, queue: ~str,  passive: bool, durable: bool, exclusive: bool, auto_delete: bool, arguments: Option<amqp_table>) -> Result<amqp_queue_declare_ok, ~str> {
     unsafe {
       let args = match arguments{
         Some(args) => args.to_rabbit(),
@@ -222,9 +224,8 @@ impl Connection {
         let reply : &rabbitmq::Struct_amqp_queue_declare_ok_t_ = cast::transmute(response.reply.decoded);
         Ok(amqp_queue_declare_ok { queue: amqp_bytes_to_str(reply.queue), message_count: reply.message_count, consumer_count: reply.consumer_count })
       }else{
-        Err(response.library_error)
+        Err(reply_to_error(response))
       }
-
     }
   }
 
@@ -246,7 +247,7 @@ impl Connection {
       if response.reply_type == rabbitmq::AMQP_RESPONSE_NORMAL{
         Ok(())
       }else{
-        Err(error_string(response.library_error))
+        Err(reply_to_error(response))
       }
     }
   }
@@ -284,7 +285,7 @@ impl Connection {
         Ok(msg)
       } else {
         destroy_envelope(penvelope);
-        Err(error_string(reply.library_error))
+        Err(reply_to_error(reply))
       }
     }
   }
@@ -344,5 +345,19 @@ fn amqp_bytes_to_str(bytes: rabbitmq::amqp_bytes_t) -> ~str {
 fn error_string(error: i32) -> ~str {
   unsafe {
     return std::str::raw::from_c_str(rabbitmq::amqp_error_string2(error));
+  }
+}
+
+fn reply_to_error(reply: rabbitmq::amqp_rpc_reply_t) -> ~str {
+  match reply.reply_type {
+    rabbitmq::AMQP_RESPONSE_NONE => ~"Missing RPC reply type",
+    rabbitmq::AMQP_RESPONSE_LIBRARY_EXCEPTION => error_string(reply.library_error),
+    rabbitmq::AMQP_RESPONSE_SERVER_EXCEPTION => match reply.reply.id {
+      q @ _ if q == AMQP_CONNECTION_CLOSE_METHOD as u32 => ~"server connection error",
+      q @ _ if q == AMQP_CHANNEL_CLOSE_METHOD as u32 => ~"server channel error",
+      _ => format!("Unknown server error, method id {}", reply.reply.id)
+    },
+    rabbitmq::AMQP_RESPONSE_NORMAL => ~"No error",
+    _ => ~"Unknown reply_type"
   }
 }
