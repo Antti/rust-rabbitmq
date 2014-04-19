@@ -43,6 +43,11 @@ impl TableField for u32 {
 }
 
 #[deriving(Show)]
+pub struct amqp_message {
+  body: ~str
+}
+
+#[deriving(Show)]
 pub struct amqp_queue_declare_ok {
   pub queue: ~str,
   pub message_count: u32,
@@ -223,7 +228,7 @@ impl Connection {
     }
   }
 
-  pub fn queue_bind(&self, channel: Channel, queue: ~str, exchange: ~str, routing_key: ~str, arguments: Option<amqp_table>) -> Result<(), i32> {
+  pub fn queue_bind(&self, channel: Channel, queue: ~str, exchange: ~str, routing_key: ~str, arguments: Option<amqp_table>) -> Result<(), int> {
     unsafe {
       let args = match arguments{
         Some(args) => args.to_rabbit(),
@@ -241,7 +246,7 @@ impl Connection {
       if response.reply_type == rabbitmq::AMQP_RESPONSE_NORMAL{
         Ok(())
       }else{
-        Err(response.library_error)
+        Err(response.library_error as int)
       }
     }
   }
@@ -253,6 +258,35 @@ impl Connection {
         None => std::ptr::null::<rabbitmq::amqp_basic_properties_t>()
       };
       rabbitmq::amqp_basic_publish(self.state, channel.id, str_to_amqp_bytes(exchange), str_to_amqp_bytes(routing_key), bool::to_bit::<i32>(mandatory), bool::to_bit::<i32>(immediate), props, str_to_amqp_bytes(body))
+    }
+  }
+
+  pub fn basic_consume(&self, channel: Channel, queue: ~str, consumer_tag: ~str, no_local: bool, no_ack: bool, exclusive: bool, arguments: Option<amqp_table>) -> *mut rabbitmq::amqp_basic_consume_ok_t{
+    unsafe {
+      let args = match arguments{
+        Some(args) => args.to_rabbit(),
+        None => (amqp_table{entries: ~[] }).to_rabbit()
+      };
+      rabbitmq::amqp_basic_consume(self.state, channel.id, str_to_amqp_bytes(queue), str_to_amqp_bytes(consumer_tag),
+        bool::to_bit::<i32>(no_local), bool::to_bit::<i32>(no_ack), bool::to_bit::<i32>(exclusive), args)
+    }
+  }
+
+  pub fn consume_message(&self, timeout: Option<*mut rabbitmq::Struct_timeval>, flags: Option<int>) -> Result<amqp_message, int> {
+    unsafe {
+      let to = timeout.unwrap_or(cast::transmute(std::ptr::null::<rabbitmq::Struct_timeval>()));
+      let envelope : *mut rabbitmq::amqp_envelope_t = cast::transmute(std::rt::global_heap::malloc_raw(std::mem::size_of::<rabbitmq::Struct_amqp_envelope_t_>()));
+      let reply = rabbitmq::amqp_consume_message(self.state, envelope, to, flags.unwrap_or(0) as i32);
+      if reply.reply_type == rabbitmq::AMQP_RESPONSE_NORMAL {
+        let msg = amqp_message{ body: amqp_bytes_to_str((*envelope).message.body) };
+        destroy_envelope(envelope);
+        std::rt::global_heap::exchange_free(envelope as *u8);
+        Ok(msg)
+      } else {
+        destroy_envelope(envelope);
+        std::rt::global_heap::exchange_free(envelope as *u8);
+        Err(reply.library_error as int)
+      }
     }
   }
 
@@ -281,6 +315,12 @@ pub fn version() -> ~str {
 pub fn version_number() -> uint {
   unsafe {
     return rabbitmq::amqp_version_number() as uint;
+  }
+}
+
+pub fn destroy_envelope(envelope: *mut rabbitmq::amqp_envelope_t){
+  unsafe {
+    rabbitmq::amqp_destroy_envelope(envelope);
   }
 }
 

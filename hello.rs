@@ -27,9 +27,14 @@ fn main(){
   let queue = con.queue_declare(chan, ~"testq123", false, false, false, false, None);
   println!("{}", queue);
 
-  //(1 << 15) | (1 << 12)
   let properties = amqp::amqp_basic_properties { _flags: (1 << 15) , content_type: ~"text/plain", delivery_mode: 1, ..std::default::Default::default()};
-  con.basic_publish(chan, ~"", ~"testq123", false, false, Some(properties), ~"hello from rust!");
+  con.basic_publish(chan, ~"", ~"testq123", false, false, Some(properties), ~"xxxhello from rust!");
+  let x = con.basic_consume(chan, ~"", ~"testq123", false, false, false, None);
+  loop {
+    let msg = con.consume_message(None, None);
+    println!("{}", msg);
+  }
+
 
   con.channel_close(chan, amqp::AMQP_REPLY_SUCCESS);
   con.connection_close(amqp::AMQP_REPLY_SUCCESS);
