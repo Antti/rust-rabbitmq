@@ -28,11 +28,14 @@ fn main(){
   println!("{}", queue);
 
   let properties = amqp::amqp_basic_properties { _flags: (1 << 15) , content_type: ~"text/plain", delivery_mode: 1, ..std::default::Default::default()};
-  con.basic_publish(chan, ~"", ~"testq123", false, false, Some(properties), ~"xxxhello from rust!");
+  con.basic_publish(chan, ~"", ~"testq123", false, false, Some(properties), (~"xxxhello from rust!").into_bytes());
   con.basic_consume(chan, ~"", ~"testq123", false, false, false, None);
   loop {
     let msg = con.consume_message(None, None);
-    println!("{}", msg);
+    match msg {
+      Ok(msg) => println!("{}", msg.str_body()),
+      Err(msg) => println!("Error consuming message: {}", msg)
+    }
   }
 
   con.channel_close(chan, amqp::AMQP_REPLY_SUCCESS);
