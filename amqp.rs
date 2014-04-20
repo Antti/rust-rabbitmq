@@ -65,7 +65,7 @@ pub struct amqp_queue_purge {
 
 #[deriving(Default)]
 pub struct amqp_table {
-    pub entries: ~[rabbitmq::Struct_amqp_table_entry_t_]
+    pub entries: Vec<rabbitmq::Struct_amqp_table_entry_t_>
 }
 
 #[deriving(Default)]
@@ -148,14 +148,14 @@ impl Connection {
   pub fn new(socket_type: SocketType) -> Result<~Connection, ~str> {
 
     let state = match unsafe { rabbitmq::amqp_new_connection() } {
-      ptr @ _ if !ptr.is_null() => ptr,
-      _ => return Err(~"Error allocating new connection")
+      ptr if !ptr.is_null() => ptr,
+      _ => return Err("Error allocating new connection".to_owned())
     };
 
     match socket_type{
       TcpSocket => match unsafe { rabbitmq::amqp_tcp_socket_new(state) }{
-        ptr @ _ if !ptr.is_null() => ptr,
-        _ => { return Err(~"Error creating socket")}
+        ptr if !ptr.is_null() => ptr,
+        _ => { return Err("Error creating socket".to_owned())}
       }
     };
 
@@ -166,13 +166,13 @@ impl Connection {
     unsafe {
       match rabbitmq::amqp_socket_open((*self.state).socket, hostname.to_c_str().unwrap(), port.unwrap_or(5672) as i32){
         0 => { self.connection_state = ConnectionOpen; Ok(()) },
-        code @ _ => Err((error_string(code), code))
+        code => Err((error_string(code), code))
       }
     }
   }
 
-  pub fn login(&self, vhost: ~str, channel_max: int, frame_max: Option<int>, heartbeat: int,
-             sasl_method: rabbitmq::amqp_sasl_method_enum, login: ~str, password: ~str) -> Result<(),~str> {
+  pub fn login(&self, vhost: &str, channel_max: int, frame_max: Option<int>, heartbeat: int,
+             sasl_method: rabbitmq::amqp_sasl_method_enum, login: &str, password: &str) -> Result<(),~str> {
     unsafe {
       let reply = rabbitmq::amqp_login(self.state, vhost.to_c_str().unwrap(), channel_max as i32, frame_max.unwrap_or(131072) as i32, heartbeat as i32, sasl_method,
                            login.to_c_str().unwrap(), password.to_c_str().unwrap());
@@ -207,11 +207,11 @@ impl Connection {
     }
   }
 
-  pub fn queue_declare(&self, channel: Channel, queue: ~str,  passive: bool, durable: bool, exclusive: bool, auto_delete: bool, arguments: Option<amqp_table>) -> Result<amqp_queue_declare_ok, ~str> {
+  pub fn queue_declare(&self, channel: Channel, queue: &str,  passive: bool, durable: bool, exclusive: bool, auto_delete: bool, arguments: Option<amqp_table>) -> Result<amqp_queue_declare_ok, ~str> {
     unsafe {
       let args = match arguments{
         Some(args) => args.to_rabbit(),
-        None => (amqp_table{entries: ~[] }).to_rabbit()
+        None => (amqp_table{entries: Vec::new() }).to_rabbit()
       };
 
       let req = rabbitmq::Struct_amqp_queue_declare_t_{
@@ -235,11 +235,11 @@ impl Connection {
     }
   }
 
-  pub fn queue_bind(&self, channel: Channel, queue: ~str, exchange: ~str, routing_key: ~str, arguments: Option<amqp_table>) -> Result<(), ~str> {
+  pub fn queue_bind(&self, channel: Channel, queue: &str, exchange: &str, routing_key: &str, arguments: Option<amqp_table>) -> Result<(), ~str> {
     unsafe {
       let args = match arguments{
         Some(args) => args.to_rabbit(),
-        None => (amqp_table{entries: ~[] }).to_rabbit()
+        None => (amqp_table{entries: Vec::new() }).to_rabbit()
       };
       let req = rabbitmq::Struct_amqp_queue_bind_t_ {
         ticket: 0,
@@ -258,7 +258,7 @@ impl Connection {
     }
   }
 
-  pub fn basic_publish(&self, channel: Channel, exchange: ~str, routing_key: ~str, mandatory: bool, immediate: bool, properties: Option<amqp_basic_properties>, body: ~[u8]) -> i32 {
+  pub fn basic_publish(&self, channel: Channel, exchange: &str, routing_key: &str, mandatory: bool, immediate: bool, properties: Option<amqp_basic_properties>, body: ~[u8]) -> i32 {
     unsafe{
       let props = match properties {
         Some(prop) => cast::transmute(&prop.to_rabbit()),
@@ -268,11 +268,11 @@ impl Connection {
     }
   }
 
-  pub fn basic_consume(&self, channel: Channel, queue: ~str, consumer_tag: ~str, no_local: bool, no_ack: bool, exclusive: bool, arguments: Option<amqp_table>) -> *mut rabbitmq::amqp_basic_consume_ok_t{
+  pub fn basic_consume(&self, channel: Channel, queue: &str, consumer_tag: &str, no_local: bool, no_ack: bool, exclusive: bool, arguments: Option<amqp_table>) -> *mut rabbitmq::amqp_basic_consume_ok_t{
     unsafe {
       let args = match arguments{
         Some(args) => args.to_rabbit(),
-        None => (amqp_table{entries: ~[] }).to_rabbit()
+        None => (amqp_table{entries: Vec::new() }).to_rabbit()
       };
       rabbitmq::amqp_basic_consume(self.state, channel.id, str_to_amqp_bytes(queue), str_to_amqp_bytes(consumer_tag),
         bool::to_bit::<i32>(no_local), bool::to_bit::<i32>(no_ack), bool::to_bit::<i32>(exclusive), args)
@@ -367,14 +367,14 @@ fn error_string(error: i32) -> ~str {
 
 fn reply_to_error(reply: rabbitmq::amqp_rpc_reply_t) -> ~str {
   match reply.reply_type {
-    rabbitmq::AMQP_RESPONSE_NONE => ~"Missing RPC reply type",
+    rabbitmq::AMQP_RESPONSE_NONE => "Missing RPC reply type".to_owned(),
     rabbitmq::AMQP_RESPONSE_LIBRARY_EXCEPTION => error_string(reply.library_error),
     rabbitmq::AMQP_RESPONSE_SERVER_EXCEPTION => match reply.reply.id {
-      q @ _ if q == AMQP_CONNECTION_CLOSE_METHOD as u32 => ~"server connection error",
-      q @ _ if q == AMQP_CHANNEL_CLOSE_METHOD as u32 => ~"server channel error",
+      q if q == AMQP_CONNECTION_CLOSE_METHOD as u32 => "server connection error".to_owned(),
+      q if q == AMQP_CHANNEL_CLOSE_METHOD as u32 => "server channel error".to_owned(),
       _ => format!("Unknown server error, method id {}", reply.reply.id)
     },
-    rabbitmq::AMQP_RESPONSE_NORMAL => ~"No error",
-    _ => ~"Unknown reply_type"
+    rabbitmq::AMQP_RESPONSE_NORMAL => "No error".to_owned(),
+    _ => "Unknown reply_type".to_owned()
   }
 }
