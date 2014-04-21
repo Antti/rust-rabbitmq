@@ -28,7 +28,7 @@ fn main(){
   println!("{}", queue);
 
   let properties = amqp::amqp_basic_properties { _flags: (1 << 15) , content_type: "text/plain".to_owned(), delivery_mode: 1, ..std::default::Default::default()};
-  con.basic_publish(chan, "", "testq123", false, false, Some(properties), "xxxhello from rust!".to_owned().into_bytes());
+  con.basic_publish(chan, "", "testq123", false, false, Some(properties), StrBuf::from_str("xxxhello from rust!").into_bytes());
   con.basic_consume(chan, "", "testq123", false, false, false, None);
   loop {
     let msg = con.consume_message(None, None);

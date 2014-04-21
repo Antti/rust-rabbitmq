@@ -46,7 +46,7 @@ impl TableField for u32 {
 
 #[deriving(Show)]
 pub struct amqp_message {
-  pub body: ~[u8],
+  pub body: Vec<u8>,
 }
 
 #[deriving(Show)]
@@ -89,7 +89,7 @@ pub struct amqp_basic_properties {
 
 impl amqp_message {
   pub fn str_body<'a>(&'a self) -> Option<&'a str> {
-    std::str::from_utf8(self.body)
+    std::str::from_utf8(self.body.as_slice())
   }
 }
 
@@ -211,7 +211,7 @@ impl Connection {
     unsafe {
       let args = match arguments{
         Some(args) => args.to_rabbit(),
-        None => (amqp_table{entries: Vec::new() }).to_rabbit()
+        None => (amqp_table{entries: vec!() }).to_rabbit()
       };
 
       let req = rabbitmq::Struct_amqp_queue_declare_t_{
@@ -239,7 +239,7 @@ impl Connection {
     unsafe {
       let args = match arguments{
         Some(args) => args.to_rabbit(),
-        None => (amqp_table{entries: Vec::new() }).to_rabbit()
+        None => (amqp_table{entries: vec!() }).to_rabbit()
       };
       let req = rabbitmq::Struct_amqp_queue_bind_t_ {
         ticket: 0,
@@ -258,7 +258,7 @@ impl Connection {
     }
   }
 
-  pub fn basic_publish(&self, channel: Channel, exchange: &str, routing_key: &str, mandatory: bool, immediate: bool, properties: Option<amqp_basic_properties>, body: ~[u8]) -> i32 {
+  pub fn basic_publish(&self, channel: Channel, exchange: &str, routing_key: &str, mandatory: bool, immediate: bool, properties: Option<amqp_basic_properties>, body: Vec<u8>) -> i32 {
     unsafe{
       let props = match properties {
         Some(prop) => cast::transmute(&prop.to_rabbit()),
@@ -272,7 +272,7 @@ impl Connection {
     unsafe {
       let args = match arguments{
         Some(args) => args.to_rabbit(),
-        None => (amqp_table{entries: Vec::new() }).to_rabbit()
+        None => (amqp_table{entries: vec!() }).to_rabbit()
       };
       rabbitmq::amqp_basic_consume(self.state, channel.id, str_to_amqp_bytes(queue), str_to_amqp_bytes(consumer_tag),
         bool::to_bit::<i32>(no_local), bool::to_bit::<i32>(no_ack), bool::to_bit::<i32>(exclusive), args)
@@ -342,7 +342,7 @@ fn str_to_amqp_bytes(string: &str) -> rabbitmq::amqp_bytes_t {
   }
 }
 
-fn vec_to_amqp_bytes(vec: ~[u8]) -> rabbitmq::amqp_bytes_t {
+fn vec_to_amqp_bytes(vec: Vec<u8>) -> rabbitmq::amqp_bytes_t {
   unsafe {
     rabbitmq::Struct_amqp_bytes_t_ { len: vec.len() as u64, bytes: std::cast::transmute(vec.as_ptr()) }
   }
@@ -353,9 +353,9 @@ fn amqp_bytes_to_str(bytes: rabbitmq::amqp_bytes_t) -> ~str {
     std::str::raw::from_buf_len(cast::transmute(bytes.bytes), bytes.len as uint)
   }
 }
-fn amqp_bytes_to_vec(bytes: rabbitmq::amqp_bytes_t) -> ~[u8] {
+fn amqp_bytes_to_vec(bytes: rabbitmq::amqp_bytes_t) -> Vec<u8> {
   unsafe {
-    std::slice::raw::from_buf_raw::<u8>(cast::transmute(bytes.bytes), bytes.len as uint)
+    Vec::from_slice(std::slice::raw::from_buf_raw::<u8>(cast::transmute(bytes.bytes), bytes.len as uint))
   }
 }
 
