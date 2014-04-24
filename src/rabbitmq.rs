@@ -264,7 +264,7 @@ impl Connection {
         Some(prop) => cast::transmute(&prop.to_rabbit()),
         None => std::ptr::null::<rabbitmqc::amqp_basic_properties_t>()
       };
-      rabbitmqc::amqp_basic_publish(self.state, channel.id, str_to_amqp_bytes(exchange), str_to_amqp_bytes(routing_key), bool::to_bit::<i32>(mandatory), bool::to_bit::<i32>(immediate), props, vec_to_amqp_bytes(body))
+      rabbitmqc::amqp_basic_publish(self.state, channel.id, str_to_amqp_bytes(exchange), str_to_amqp_bytes(routing_key), bool::to_bit::<i32>(mandatory), bool::to_bit::<i32>(immediate), props, vec_to_amqp_bytes(&body))
     }
   }
 
@@ -346,7 +346,7 @@ fn str_to_amqp_bytes(string: &str) -> rabbitmqc::amqp_bytes_t {
   }
 }
 
-fn vec_to_amqp_bytes(vec: Vec<u8>) -> rabbitmqc::amqp_bytes_t {
+fn vec_to_amqp_bytes(vec: &Vec<u8>) -> rabbitmqc::amqp_bytes_t {
   unsafe {
     rabbitmqc::Struct_amqp_bytes_t_ { len: vec.len() as u64, bytes: std::cast::transmute(vec.as_ptr()) }
   }
