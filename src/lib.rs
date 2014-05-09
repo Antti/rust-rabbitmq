@@ -145,7 +145,7 @@ impl std::ops::Drop for Connection {
 }
 
 impl Connection {
-  pub fn new(socket_type: SocketType) -> Result<~Connection, ~str> {
+  pub fn new(socket_type: SocketType) -> Result<Connection, ~str> {
 
     let state = match unsafe { rabbitmqc::amqp_new_connection() } {
       ptr if !ptr.is_null() => ptr,
@@ -159,10 +159,10 @@ impl Connection {
       }
     };
 
-    Ok(~Connection { state: state, connection_state: ConnectionClosed })
+    Ok(Connection { state: state, connection_state: ConnectionClosed })
   }
 
-  pub fn socket_open(&mut self, hostname: ~str, port: Option<uint>) -> Result<(), (~str, i32)> {
+  pub fn socket_open(&mut self, hostname: &str, port: Option<uint>) -> Result<(), (~str, i32)> {
     unsafe {
       match rabbitmqc::amqp_socket_open((*self.state).socket, hostname.to_c_str().unwrap(), port.unwrap_or(5672) as i32){
         0 => { self.connection_state = ConnectionOpen; Ok(()) },

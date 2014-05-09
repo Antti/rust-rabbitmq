@@ -4,7 +4,7 @@ extern crate libc;
 fn main(){
   println!("librabbitmq-c {}", rabbitmq::version());
   let mut con = rabbitmq::Connection::new(rabbitmq::TcpSocket).unwrap();
-  let result = con.socket_open("localhost".to_owned(), None);
+  let result = con.socket_open("localhost", None);
 
   if result.is_err() {
   	let io_msg;
