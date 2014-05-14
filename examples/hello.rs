@@ -23,7 +23,7 @@ fn main(){
     println!("Error loggin in: {}", log);
   }
   let chan = con.channel_open(1).unwrap();
-  // let mut table = rabbitmq::amqp_table { entries: ~[] };
+  // let mut table = rabbitmq::amqp_table { entries: vec!() };
   // table.add_entry("hi".to_owned(), 1 as u32);
   let queue = con.queue_declare(chan, "testq123".to_owned(), false, false, false, false, None);
   println!("{}", queue);

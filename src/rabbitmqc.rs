@@ -21,10 +21,10 @@ pub struct __mbstate_t {
 }
 impl __mbstate_t {
     pub fn __mbstate8(&mut self) -> *mut [c_schar, ..128u] {
-        unsafe { ::std::cast::transmute(self) }
+        unsafe { ::std::mem::transmute(self) }
     }
     pub fn _mbstateL(&mut self) -> *mut c_longlong {
-        unsafe { ::std::cast::transmute(self) }
+        unsafe { ::std::mem::transmute(self) }
     }
 }
 pub type __darwin_mbstate_t = __mbstate_t;
@@ -183,49 +183,49 @@ pub struct Union_Unnamed1 {
 }
 impl Union_Unnamed1 {
     pub fn boolean(&mut self) -> *mut amqp_boolean_t {
-        unsafe { ::std::cast::transmute(self) }
+        unsafe { ::std::mem::transmute(self) }
     }
     pub fn i8(&mut self) -> *mut int8_t {
-        unsafe { ::std::cast::transmute(self) }
+        unsafe { ::std::mem::transmute(self) }
     }
     pub fn u8(&mut self) -> *mut uint8_t {
-        unsafe { ::std::cast::transmute(self) }
+        unsafe { ::std::mem::transmute(self) }
     }
     pub fn i16(&mut self) -> *mut int16_t {
-        unsafe { ::std::cast::transmute(self) }
+        unsafe { ::std::mem::transmute(self) }
     }
     pub fn u16(&mut self) -> *mut uint16_t {
-        unsafe { ::std::cast::transmute(self) }
+        unsafe { ::std::mem::transmute(self) }
     }
     pub fn i32(&mut self) -> *mut int32_t {
-        unsafe { ::std::cast::transmute(self) }
+        unsafe { ::std::mem::transmute(self) }
     }
     pub fn u32(&mut self) -> *mut uint32_t {
-        unsafe { ::std::cast::transmute(self) }
+        unsafe { ::std::mem::transmute(self) }
     }
     pub fn i64(&mut self) -> *mut int64_t {
-        unsafe { ::std::cast::transmute(self) }
+        unsafe { ::std::mem::transmute(self) }
     }
     pub fn u64(&mut self) -> *mut uint64_t {
-        unsafe { ::std::cast::transmute(self) }
+        unsafe { ::std::mem::transmute(self) }
     }
     pub fn f32(&mut self) -> *mut c_float {
-        unsafe { ::std::cast::transmute(self) }
+        unsafe { ::std::mem::transmute(self) }
     }
     pub fn f64(&mut self) -> *mut c_double {
-        unsafe { ::std::cast::transmute(self) }
+        unsafe { ::std::mem::transmute(self) }
     }
     pub fn decimal(&mut self) -> *mut amqp_decimal_t {
-        unsafe { ::std::cast::transmute(self) }
+        unsafe { ::std::mem::transmute(self) }
     }
     pub fn bytes(&mut self) -> *mut amqp_bytes_t {
-        unsafe { ::std::cast::transmute(self) }
+        unsafe { ::std::mem::transmute(self) }
     }
     pub fn table(&mut self) -> *mut amqp_table_t {
-        unsafe { ::std::cast::transmute(self) }
+        unsafe { ::std::mem::transmute(self) }
     }
     pub fn array(&mut self) -> *mut amqp_array_t {
-        unsafe { ::std::cast::transmute(self) }
+        unsafe { ::std::mem::transmute(self) }
     }
 }
 pub type amqp_field_value_t = Struct_amqp_field_value_t_;
@@ -283,16 +283,16 @@ pub struct Union_Unnamed2 {
 }
 impl Union_Unnamed2 {
     pub fn method(&mut self) -> *mut amqp_method_t {
-        unsafe { ::std::cast::transmute(self) }
+        unsafe { ::std::mem::transmute(self) }
     }
     pub fn properties(&mut self) -> *mut Struct_Unnamed3 {
-        unsafe { ::std::cast::transmute(self) }
+        unsafe { ::std::mem::transmute(self) }
     }
     pub fn body_fragment(&mut self) -> *mut amqp_bytes_t {
-        unsafe { ::std::cast::transmute(self) }
+        unsafe { ::std::mem::transmute(self) }
     }
     pub fn protocol_header(&mut self) -> *mut Struct_Unnamed4 {
-        unsafe { ::std::cast::transmute(self) }
+        unsafe { ::std::mem::transmute(self) }
     }
 }
 pub struct Struct_Unnamed3 {
@@ -958,13 +958,13 @@ pub struct Union_Unnamed5 {
 }
 impl Union_Unnamed5 {
     pub fn __u6_addr8(&mut self) -> *mut [__uint8_t, ..16u] {
-        unsafe { ::std::cast::transmute(self) }
+        unsafe { ::std::mem::transmute(self) }
     }
     pub fn __u6_addr16(&mut self) -> *mut [__uint16_t, ..8u] {
-        unsafe { ::std::cast::transmute(self) }
+        unsafe { ::std::mem::transmute(self) }
     }
     pub fn __u6_addr32(&mut self) -> *mut [__uint32_t, ..4u] {
-        unsafe { ::std::cast::transmute(self) }
+        unsafe { ::std::mem::transmute(self) }
     }
 }
 pub struct Struct_sockaddr_in6 {
