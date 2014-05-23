@@ -50,7 +50,7 @@ pub struct amqp_message {
 
 #[deriving(Show)]
 pub struct amqp_queue_declare_ok {
-  pub queue: ~str,
+  pub queue: StrBuf,
   pub message_count: u32,
   pub consumer_count: u32,
 }
@@ -58,7 +58,7 @@ pub struct amqp_queue_declare_ok {
 #[deriving(Show)]
 pub struct amqp_queue_purge {
   pub ticket: u16,
-  pub queue: ~str,
+  pub queue: StrBuf,
   pub nowait: bool
 }
 
@@ -70,20 +70,20 @@ pub struct amqp_table {
 #[deriving(Default)]
 pub struct amqp_basic_properties {
     pub _flags: u32,
-    pub content_type: ~str,
-    pub content_encoding: ~str,
+    pub content_type: StrBuf,
+    pub content_encoding: StrBuf,
     pub headers: amqp_table,
     pub delivery_mode: u8,
     pub priority: u8,
-    pub correlation_id: ~str,
-    pub reply_to: ~str,
-    pub expiration: ~str,
-    pub message_id: ~str,
+    pub correlation_id: StrBuf,
+    pub reply_to: StrBuf,
+    pub expiration: StrBuf,
+    pub message_id: StrBuf,
     pub timestamp: u64,
-    pub _type: ~str,
-    pub user_id: ~str,
-    pub app_id: ~str,
-    pub cluster_id: ~str,
+    pub _type: StrBuf,
+    pub user_id: StrBuf,
+    pub app_id: StrBuf,
+    pub cluster_id: StrBuf,
 }
 
 impl amqp_message {
@@ -99,7 +99,7 @@ impl amqp_table {
     }
   }
 
-  pub fn add_entry<T: TableField>(&mut self, key: ~str, value: T) {
+  pub fn add_entry<T: TableField>(&mut self, key: StrBuf, value: T) {
     self.entries.push(rabbitmqc::Struct_amqp_table_entry_t_ { key: str_to_amqp_bytes(key), value: unsafe { mem::transmute(value.to_rabbit()) } } )
   }
 }
@@ -144,7 +144,7 @@ impl std::ops::Drop for Connection {
 }
 
 impl Connection {
-  pub fn new(socket_type: SocketType) -> Result<Connection, ~str> {
+  pub fn new(socket_type: SocketType) -> Result<Connection, StrBuf> {
 
     let state = match unsafe { rabbitmqc::amqp_new_connection() } {
       ptr if !ptr.is_null() => ptr,
@@ -161,7 +161,7 @@ impl Connection {
     Ok(Connection { state: state, connection_state: ConnectionClosed })
   }
 
-  pub fn socket_open(&mut self, hostname: &str, port: Option<uint>) -> Result<(), (~str, i32)> {
+  pub fn socket_open(&mut self, hostname: &str, port: Option<uint>) -> Result<(), (StrBuf, i32)> {
     unsafe {
       match rabbitmqc::amqp_socket_open((*self.state).socket, hostname.to_c_str().unwrap(), port.unwrap_or(5672) as i32){
         0 => { self.connection_state = ConnectionOpen; Ok(()) },
@@ -171,7 +171,7 @@ impl Connection {
   }
 
   pub fn login(&self, vhost: &str, channel_max: int, frame_max: Option<int>, heartbeat: int,
-             sasl_method: rabbitmqc::amqp_sasl_method_enum, login: &str, password: &str) -> Result<(),~str> {
+             sasl_method: rabbitmqc::amqp_sasl_method_enum, login: &str, password: &str) -> Result<(),StrBuf> {
     unsafe {
       let reply = rabbitmqc::amqp_login(self.state, vhost.to_c_str().unwrap(), channel_max as i32, frame_max.unwrap_or(131072) as i32, heartbeat as i32, sasl_method,
                            login.to_c_str().unwrap(), password.to_c_str().unwrap());
@@ -206,7 +206,7 @@ impl Connection {
     }
   }
 
-  pub fn queue_declare(&self, channel: Channel, queue: &str,  passive: bool, durable: bool, exclusive: bool, auto_delete: bool, arguments: Option<amqp_table>) -> Result<amqp_queue_declare_ok, ~str> {
+  pub fn queue_declare(&self, channel: Channel, queue: &str,  passive: bool, durable: bool, exclusive: bool, auto_delete: bool, arguments: Option<amqp_table>) -> Result<amqp_queue_declare_ok, StrBuf> {
     unsafe {
       let args = match arguments{
         Some(args) => args.to_rabbit(),
@@ -215,7 +215,7 @@ impl Connection {
 
       let req = rabbitmqc::Struct_amqp_queue_declare_t_{
         ticket :      0,
-        queue :       str_to_amqp_bytes(queue),
+        queue :       str_to_amqp_bytes(StrBuf::from_str(queue)),
         passive :     bool::to_bit::<i32>(passive),
         durable :     bool::to_bit::<i32>(durable),
         exclusive :   bool::to_bit::<i32>(exclusive),
@@ -234,7 +234,7 @@ impl Connection {
     }
   }
 
-  pub fn queue_bind(&self, channel: Channel, queue: &str, exchange: &str, routing_key: &str, arguments: Option<amqp_table>) -> Result<(), ~str> {
+  pub fn queue_bind(&self, channel: Channel, queue: &str, exchange: &str, routing_key: &str, arguments: Option<amqp_table>) -> Result<(), StrBuf> {
     unsafe {
       let args = match arguments{
         Some(args) => args.to_rabbit(),
@@ -242,9 +242,9 @@ impl Connection {
       };
       let req = rabbitmqc::Struct_amqp_queue_bind_t_ {
         ticket: 0,
-        queue: str_to_amqp_bytes(queue),
-        exchange: str_to_amqp_bytes(exchange),
-        routing_key: str_to_amqp_bytes(routing_key),
+        queue: str_to_amqp_bytes(StrBuf::from_str(queue)),
+        exchange: str_to_amqp_bytes(StrBuf::from_str(exchange)),
+        routing_key: str_to_amqp_bytes(StrBuf::from_str(routing_key)),
         nowait: 0,
         arguments: args,
       };
@@ -263,7 +263,7 @@ impl Connection {
         Some(prop) => mem::transmute(&prop.to_rabbit()),
         None => std::ptr::null::<rabbitmqc::amqp_basic_properties_t>()
       };
-      rabbitmqc::amqp_basic_publish(self.state, channel.id, str_to_amqp_bytes(exchange), str_to_amqp_bytes(routing_key), bool::to_bit::<i32>(mandatory), bool::to_bit::<i32>(immediate), props, vec_to_amqp_bytes(&body))
+      rabbitmqc::amqp_basic_publish(self.state, channel.id, str_to_amqp_bytes(StrBuf::from_str(exchange)), str_to_amqp_bytes(StrBuf::from_str(routing_key)), bool::to_bit::<i32>(mandatory), bool::to_bit::<i32>(immediate), props, vec_to_amqp_bytes(&body))
     }
   }
 
@@ -273,12 +273,12 @@ impl Connection {
         Some(args) => args.to_rabbit(),
         None => (amqp_table{entries: vec!() }).to_rabbit()
       };
-      rabbitmqc::amqp_basic_consume(self.state, channel.id, str_to_amqp_bytes(queue), str_to_amqp_bytes(consumer_tag),
+      rabbitmqc::amqp_basic_consume(self.state, channel.id, str_to_amqp_bytes(StrBuf::from_str(queue)), str_to_amqp_bytes(StrBuf::from_str(consumer_tag)),
         bool::to_bit::<i32>(no_local), bool::to_bit::<i32>(no_ack), bool::to_bit::<i32>(exclusive), args)
     }
   }
 
-  pub fn consume_message(&self, timeout: Option<rabbitmqc::Struct_timeval>, flags: Option<int>) -> Result<amqp_message, ~str> {
+  pub fn consume_message(&self, timeout: Option<rabbitmqc::Struct_timeval>, flags: Option<int>) -> Result<amqp_message, StrBuf> {
     unsafe {
       let to : *mut rabbitmqc::Struct_timeval = match timeout{
         Some(to) => mem::transmute(&to),
@@ -321,7 +321,7 @@ impl Connection {
 
 
 // top level
-pub fn version() -> ~str {
+pub fn version() -> StrBuf {
   unsafe {
 	  return std::str::raw::from_c_str(rabbitmqc::amqp_version());
 	}
@@ -339,7 +339,7 @@ pub fn destroy_envelope(envelope: *mut rabbitmqc::amqp_envelope_t){
   }
 }
 
-fn str_to_amqp_bytes(string: &str) -> rabbitmqc::amqp_bytes_t {
+fn str_to_amqp_bytes(string: StrBuf) -> rabbitmqc::amqp_bytes_t {
   unsafe {
     rabbitmqc::Struct_amqp_bytes_t_ { len: string.len() as u64, bytes: std::mem::transmute(string.to_c_str().unwrap()) }
   }
@@ -351,7 +351,7 @@ fn vec_to_amqp_bytes(vec: &Vec<u8>) -> rabbitmqc::amqp_bytes_t {
   }
 }
 
-fn amqp_bytes_to_str(bytes: rabbitmqc::amqp_bytes_t) -> ~str {
+fn amqp_bytes_to_str(bytes: rabbitmqc::amqp_bytes_t) -> StrBuf {
   unsafe {
     std::str::raw::from_buf_len(mem::transmute(bytes.bytes), bytes.len as uint)
   }
@@ -362,13 +362,13 @@ fn amqp_bytes_to_vec(bytes: rabbitmqc::amqp_bytes_t) -> Vec<u8> {
   }
 }
 
-fn error_string(error: i32) -> ~str {
+fn error_string(error: i32) -> StrBuf {
   unsafe {
     return std::str::raw::from_c_str(rabbitmqc::amqp_error_string2(error));
   }
 }
 
-fn reply_to_error(reply: rabbitmqc::amqp_rpc_reply_t) -> ~str {
+fn reply_to_error(reply: rabbitmqc::amqp_rpc_reply_t) -> StrBuf {
   match reply.reply_type {
     rabbitmqc::AMQP_RESPONSE_NONE => "Missing RPC reply type".to_owned(),
     rabbitmqc::AMQP_RESPONSE_LIBRARY_EXCEPTION => error_string(reply.library_error),
