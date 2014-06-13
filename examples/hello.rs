@@ -24,11 +24,11 @@ fn main(){
   }
   let chan = con.channel_open(1).unwrap();
   // let mut table = rabbitmq::amqp_table { entries: vec!() };
-  // table.add_entry("hi".to_owned(), 1 as u32);
+  // table.add_entry("hi", 1 as u32);
   let queue = con.queue_declare(chan, "testq123", false, false, false, false, None);
   println!("{}", queue);
 
-  let properties = rabbitmq::amqp_basic_properties { _flags: (1 << 15) , content_type: StrBuf::from_str("text/plain"), delivery_mode: 1, ..std::default::Default::default()};
+  let properties = rabbitmq::amqp_basic_properties { _flags: (1 << 15) , content_type: "text/plain".to_string(), delivery_mode: 1, ..std::default::Default::default()};
   con.basic_publish(chan, "", "testq123", false, false, Some(properties), Vec::from_slice(bytes!("xxxhello from rust!")));
   con.basic_consume(chan, "", "testq123", false, false, false, None);
 
