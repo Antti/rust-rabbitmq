@@ -221,10 +221,7 @@ impl Connection {
         nowait :      0,
         arguments :   args,
       };
-
-      println!("Declaring, {}", req);
       let response = self.simple_rpc(channel, AMQP_QUEUE_DECLARE_METHOD, AMQP_QUEUE_DECLARE_OK_METHOD, mem::transmute(req));
-      println!("Declared")
       if response.reply_type == rabbitmqc::AMQP_RESPONSE_NORMAL {
         let reply : &rabbitmqc::Struct_amqp_queue_declare_ok_t_ = mem::transmute(response.reply.decoded);
         Ok(amqp_queue_declare_ok { queue: amqp_bytes_to_str(reply.queue), message_count: reply.message_count, consumer_count: reply.consumer_count })
