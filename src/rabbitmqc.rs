@@ -153,6 +153,8 @@ pub type amqp_boolean_t = ::libc::c_int;
 pub type amqp_method_number_t = uint32_t;
 pub type amqp_flags_t = uint32_t;
 pub type amqp_channel_t = uint16_t;
+
+#[allow(raw_pointer_deriving)]
 #[deriving(Show)]
 pub struct Struct_amqp_bytes_t_ {
     pub len: size_t,
@@ -164,6 +166,7 @@ pub struct Struct_amqp_decimal_t_ {
     pub value: uint32_t,
 }
 pub type amqp_decimal_t = Struct_amqp_decimal_t_;
+#[allow(raw_pointer_deriving)]
 #[deriving(Show)]
 pub struct Struct_amqp_table_t_ {
     pub num_entries: ::libc::c_int,

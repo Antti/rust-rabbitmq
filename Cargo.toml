@@ -1,0 +1,10 @@
+[package]
+
+name = "rust-rabbitmq"
+version = "0.1.0"
+authors = [ "refresh.xss@gmail.com" ]
+
+[[lib]]
+
+name = "librabbitmq"
+path = "src/lib.rs"

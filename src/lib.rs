@@ -135,7 +135,6 @@ pub struct Channel {
   pub id: u16
 }
 
-#[unsafe_destructor]
 impl std::ops::Drop for Connection {
   fn drop(&mut self) {
     self.connection_close(AMQP_REPLY_SUCCESS);
