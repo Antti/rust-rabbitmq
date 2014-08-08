@@ -14,6 +14,7 @@ pub type __uint64_t = ::libc::c_ulonglong;
 pub type __darwin_intptr_t = ::libc::c_long;
 pub type __darwin_natural_t = ::libc::c_uint;
 pub type __darwin_ct_rune_t = ::libc::c_int;
+#[repr(C)]
 pub struct __mbstate_t {
     pub data: [u64, ..16u],
 }
@@ -36,44 +37,54 @@ pub type __darwin_clock_t = ::libc::c_ulong;
 pub type __darwin_socklen_t = __uint32_t;
 pub type __darwin_ssize_t = ::libc::c_long;
 pub type __darwin_time_t = ::libc::c_long;
+#[repr(C)]
 pub struct Struct___darwin_pthread_handler_rec {
     pub __routine: ::std::option::Option<extern "C" fn
                                              (arg1: *mut ::libc::c_void)>,
     pub __arg: *mut ::libc::c_void,
     pub __next: *mut Struct___darwin_pthread_handler_rec,
 }
+#[repr(C)]
 pub struct Struct__opaque_pthread_attr_t {
     pub __sig: ::libc::c_long,
     pub __opaque: [::libc::c_char, ..56u],
 }
+#[repr(C)]
 pub struct Struct__opaque_pthread_cond_t {
     pub __sig: ::libc::c_long,
     pub __opaque: [::libc::c_char, ..40u],
 }
+#[repr(C)]
 pub struct Struct__opaque_pthread_condattr_t {
     pub __sig: ::libc::c_long,
     pub __opaque: [::libc::c_char, ..8u],
 }
+#[repr(C)]
 pub struct Struct__opaque_pthread_mutex_t {
     pub __sig: ::libc::c_long,
     pub __opaque: [::libc::c_char, ..56u],
 }
+#[repr(C)]
 pub struct Struct__opaque_pthread_mutexattr_t {
     pub __sig: ::libc::c_long,
     pub __opaque: [::libc::c_char, ..8u],
 }
+#[repr(C)]
 pub struct Struct__opaque_pthread_once_t {
     pub __sig: ::libc::c_long,
     pub __opaque: [::libc::c_char, ..8u],
 }
+#[repr(C)]
 pub struct Struct__opaque_pthread_rwlock_t {
     pub __sig: ::libc::c_long,
     pub __opaque: [::libc::c_char, ..192u],
 }
+#[repr(C)]
 pub struct Struct__opaque_pthread_rwlockattr_t {
     pub __sig: ::libc::c_long,
     pub __opaque: [::libc::c_char, ..16u],
 }
+#[repr(C)]
 pub struct Struct__opaque_pthread_t {
     pub __sig: ::libc::c_long,
     pub __cleanup_stack: *mut Struct___darwin_pthread_handler_rec,
@@ -111,6 +122,7 @@ pub type __darwin_uuid_t = [::libc::c_uchar, ..16u];
 pub type __darwin_uuid_string_t = [::libc::c_char, ..37u];
 pub type size_t = __darwin_size_t;
 pub type ssize_t = __darwin_ssize_t;
+#[repr(C)]
 pub struct Struct_iovec {
     pub iov_base: *mut ::libc::c_void,
     pub iov_len: size_t,
@@ -153,35 +165,36 @@ pub type amqp_boolean_t = ::libc::c_int;
 pub type amqp_method_number_t = uint32_t;
 pub type amqp_flags_t = uint32_t;
 pub type amqp_channel_t = uint16_t;
-
-#[allow(raw_pointer_deriving)]
-#[deriving(Show)]
+#[repr(C)]
 pub struct Struct_amqp_bytes_t_ {
     pub len: size_t,
     pub bytes: *mut ::libc::c_void,
 }
 pub type amqp_bytes_t = Struct_amqp_bytes_t_;
+#[repr(C)]
 pub struct Struct_amqp_decimal_t_ {
     pub decimals: uint8_t,
     pub value: uint32_t,
 }
 pub type amqp_decimal_t = Struct_amqp_decimal_t_;
-#[allow(raw_pointer_deriving)]
-#[deriving(Show)]
+#[repr(C)]
 pub struct Struct_amqp_table_t_ {
     pub num_entries: ::libc::c_int,
     pub entries: *mut Struct_amqp_table_entry_t_,
 }
 pub type amqp_table_t = Struct_amqp_table_t_;
+#[repr(C)]
 pub struct Struct_amqp_array_t_ {
     pub num_entries: ::libc::c_int,
     pub entries: *mut Struct_amqp_field_value_t_,
 }
 pub type amqp_array_t = Struct_amqp_array_t_;
+#[repr(C)]
 pub struct Struct_amqp_field_value_t_ {
     pub kind: uint8_t,
     pub value: Union_Unnamed1,
 }
+#[repr(C)]
 pub struct Union_Unnamed1 {
     pub data: [u64, ..2u],
 }
@@ -233,6 +246,7 @@ impl Union_Unnamed1 {
     }
 }
 pub type amqp_field_value_t = Struct_amqp_field_value_t_;
+#[repr(C)]
 pub struct Struct_amqp_table_entry_t_ {
     pub key: amqp_bytes_t,
     pub value: amqp_field_value_t,
@@ -257,11 +271,13 @@ pub static AMQP_FIELD_KIND_TIMESTAMP: ::libc::c_uint = 84;
 pub static AMQP_FIELD_KIND_TABLE: ::libc::c_uint = 70;
 pub static AMQP_FIELD_KIND_VOID: ::libc::c_uint = 86;
 pub static AMQP_FIELD_KIND_BYTES: ::libc::c_uint = 120;
+#[repr(C)]
 pub struct Struct_amqp_pool_blocklist_t_ {
     pub num_blocks: ::libc::c_int,
     pub blocklist: *mut *mut ::libc::c_void,
 }
 pub type amqp_pool_blocklist_t = Struct_amqp_pool_blocklist_t_;
+#[repr(C)]
 pub struct Struct_amqp_pool_t_ {
     pub pagesize: size_t,
     pub pages: amqp_pool_blocklist_t,
@@ -271,16 +287,19 @@ pub struct Struct_amqp_pool_t_ {
     pub alloc_used: size_t,
 }
 pub type amqp_pool_t = Struct_amqp_pool_t_;
+#[repr(C)]
 pub struct Struct_amqp_method_t_ {
     pub id: amqp_method_number_t,
     pub decoded: *mut ::libc::c_void,
 }
 pub type amqp_method_t = Struct_amqp_method_t_;
+#[repr(C)]
 pub struct Struct_amqp_frame_t_ {
     pub frame_type: uint8_t,
     pub channel: amqp_channel_t,
     pub payload: Union_Unnamed2,
 }
+#[repr(C)]
 pub struct Union_Unnamed2 {
     pub data: [u64, ..5u],
 }
@@ -298,12 +317,14 @@ impl Union_Unnamed2 {
         unsafe { ::std::mem::transmute(self) }
     }
 }
+#[repr(C)]
 pub struct Struct_Unnamed3 {
     pub class_id: uint16_t,
     pub body_size: uint64_t,
     pub decoded: *mut ::libc::c_void,
     pub raw: amqp_bytes_t,
 }
+#[repr(C)]
 pub struct Struct_Unnamed4 {
     pub transport_high: uint8_t,
     pub transport_low: uint8_t,
@@ -317,6 +338,7 @@ pub static AMQP_RESPONSE_NORMAL: ::libc::c_uint = 1;
 pub static AMQP_RESPONSE_LIBRARY_EXCEPTION: ::libc::c_uint = 2;
 pub static AMQP_RESPONSE_SERVER_EXCEPTION: ::libc::c_uint = 3;
 pub type amqp_response_type_enum = Enum_amqp_response_type_enum_;
+#[repr(C)]
 pub struct Struct_amqp_rpc_reply_t_ {
     pub reply_type: amqp_response_type_enum,
     pub reply: amqp_method_t,
@@ -356,6 +378,7 @@ pub type amqp_status_enum = Enum_amqp_status_enum_;
 pub type amqp_delivery_mode_enum = ::libc::c_uint;
 pub static AMQP_DELIVERY_NONPERSISTENT: ::libc::c_uint = 1;
 pub static AMQP_DELIVERY_PERSISTENT: ::libc::c_uint = 2;
+#[repr(C)]
 pub struct Struct_amqp_connection_start_t_ {
     pub version_major: uint8_t,
     pub version_minor: uint8_t,
@@ -364,6 +387,7 @@ pub struct Struct_amqp_connection_start_t_ {
     pub locales: amqp_bytes_t,
 }
 pub type amqp_connection_start_t = Struct_amqp_connection_start_t_;
+#[repr(C)]
 pub struct Struct_amqp_connection_start_ok_t_ {
     pub client_properties: amqp_table_t,
     pub mechanism: amqp_bytes_t,
@@ -371,36 +395,43 @@ pub struct Struct_amqp_connection_start_ok_t_ {
     pub locale: amqp_bytes_t,
 }
 pub type amqp_connection_start_ok_t = Struct_amqp_connection_start_ok_t_;
+#[repr(C)]
 pub struct Struct_amqp_connection_secure_t_ {
     pub challenge: amqp_bytes_t,
 }
 pub type amqp_connection_secure_t = Struct_amqp_connection_secure_t_;
+#[repr(C)]
 pub struct Struct_amqp_connection_secure_ok_t_ {
     pub response: amqp_bytes_t,
 }
 pub type amqp_connection_secure_ok_t = Struct_amqp_connection_secure_ok_t_;
+#[repr(C)]
 pub struct Struct_amqp_connection_tune_t_ {
     pub channel_max: uint16_t,
     pub frame_max: uint32_t,
     pub heartbeat: uint16_t,
 }
 pub type amqp_connection_tune_t = Struct_amqp_connection_tune_t_;
+#[repr(C)]
 pub struct Struct_amqp_connection_tune_ok_t_ {
     pub channel_max: uint16_t,
     pub frame_max: uint32_t,
     pub heartbeat: uint16_t,
 }
 pub type amqp_connection_tune_ok_t = Struct_amqp_connection_tune_ok_t_;
+#[repr(C)]
 pub struct Struct_amqp_connection_open_t_ {
     pub virtual_host: amqp_bytes_t,
     pub capabilities: amqp_bytes_t,
     pub insist: amqp_boolean_t,
 }
 pub type amqp_connection_open_t = Struct_amqp_connection_open_t_;
+#[repr(C)]
 pub struct Struct_amqp_connection_open_ok_t_ {
     pub known_hosts: amqp_bytes_t,
 }
 pub type amqp_connection_open_ok_t = Struct_amqp_connection_open_ok_t_;
+#[repr(C)]
 pub struct Struct_amqp_connection_close_t_ {
     pub reply_code: uint16_t,
     pub reply_text: amqp_bytes_t,
@@ -408,34 +439,42 @@ pub struct Struct_amqp_connection_close_t_ {
     pub method_id: uint16_t,
 }
 pub type amqp_connection_close_t = Struct_amqp_connection_close_t_;
+#[repr(C)]
 pub struct Struct_amqp_connection_close_ok_t_ {
     pub dummy: ::libc::c_char,
 }
 pub type amqp_connection_close_ok_t = Struct_amqp_connection_close_ok_t_;
+#[repr(C)]
 pub struct Struct_amqp_connection_blocked_t_ {
     pub reason: amqp_bytes_t,
 }
 pub type amqp_connection_blocked_t = Struct_amqp_connection_blocked_t_;
+#[repr(C)]
 pub struct Struct_amqp_connection_unblocked_t_ {
     pub dummy: ::libc::c_char,
 }
 pub type amqp_connection_unblocked_t = Struct_amqp_connection_unblocked_t_;
+#[repr(C)]
 pub struct Struct_amqp_channel_open_t_ {
     pub out_of_band: amqp_bytes_t,
 }
 pub type amqp_channel_open_t = Struct_amqp_channel_open_t_;
+#[repr(C)]
 pub struct Struct_amqp_channel_open_ok_t_ {
     pub channel_id: amqp_bytes_t,
 }
 pub type amqp_channel_open_ok_t = Struct_amqp_channel_open_ok_t_;
+#[repr(C)]
 pub struct Struct_amqp_channel_flow_t_ {
     pub active: amqp_boolean_t,
 }
 pub type amqp_channel_flow_t = Struct_amqp_channel_flow_t_;
+#[repr(C)]
 pub struct Struct_amqp_channel_flow_ok_t_ {
     pub active: amqp_boolean_t,
 }
 pub type amqp_channel_flow_ok_t = Struct_amqp_channel_flow_ok_t_;
+#[repr(C)]
 pub struct Struct_amqp_channel_close_t_ {
     pub reply_code: uint16_t,
     pub reply_text: amqp_bytes_t,
@@ -443,10 +482,12 @@ pub struct Struct_amqp_channel_close_t_ {
     pub method_id: uint16_t,
 }
 pub type amqp_channel_close_t = Struct_amqp_channel_close_t_;
+#[repr(C)]
 pub struct Struct_amqp_channel_close_ok_t_ {
     pub dummy: ::libc::c_char,
 }
 pub type amqp_channel_close_ok_t = Struct_amqp_channel_close_ok_t_;
+#[repr(C)]
 pub struct Struct_amqp_access_request_t_ {
     pub realm: amqp_bytes_t,
     pub exclusive: amqp_boolean_t,
@@ -456,10 +497,12 @@ pub struct Struct_amqp_access_request_t_ {
     pub read: amqp_boolean_t,
 }
 pub type amqp_access_request_t = Struct_amqp_access_request_t_;
+#[repr(C)]
 pub struct Struct_amqp_access_request_ok_t_ {
     pub ticket: uint16_t,
 }
 pub type amqp_access_request_ok_t = Struct_amqp_access_request_ok_t_;
+#[repr(C)]
 pub struct Struct_amqp_exchange_declare_t_ {
     pub ticket: uint16_t,
     pub exchange: amqp_bytes_t,
@@ -472,10 +515,12 @@ pub struct Struct_amqp_exchange_declare_t_ {
     pub arguments: amqp_table_t,
 }
 pub type amqp_exchange_declare_t = Struct_amqp_exchange_declare_t_;
+#[repr(C)]
 pub struct Struct_amqp_exchange_declare_ok_t_ {
     pub dummy: ::libc::c_char,
 }
 pub type amqp_exchange_declare_ok_t = Struct_amqp_exchange_declare_ok_t_;
+#[repr(C)]
 pub struct Struct_amqp_exchange_delete_t_ {
     pub ticket: uint16_t,
     pub exchange: amqp_bytes_t,
@@ -483,10 +528,12 @@ pub struct Struct_amqp_exchange_delete_t_ {
     pub nowait: amqp_boolean_t,
 }
 pub type amqp_exchange_delete_t = Struct_amqp_exchange_delete_t_;
+#[repr(C)]
 pub struct Struct_amqp_exchange_delete_ok_t_ {
     pub dummy: ::libc::c_char,
 }
 pub type amqp_exchange_delete_ok_t = Struct_amqp_exchange_delete_ok_t_;
+#[repr(C)]
 pub struct Struct_amqp_exchange_bind_t_ {
     pub ticket: uint16_t,
     pub destination: amqp_bytes_t,
@@ -496,10 +543,12 @@ pub struct Struct_amqp_exchange_bind_t_ {
     pub arguments: amqp_table_t,
 }
 pub type amqp_exchange_bind_t = Struct_amqp_exchange_bind_t_;
+#[repr(C)]
 pub struct Struct_amqp_exchange_bind_ok_t_ {
     pub dummy: ::libc::c_char,
 }
 pub type amqp_exchange_bind_ok_t = Struct_amqp_exchange_bind_ok_t_;
+#[repr(C)]
 pub struct Struct_amqp_exchange_unbind_t_ {
     pub ticket: uint16_t,
     pub destination: amqp_bytes_t,
@@ -509,11 +558,12 @@ pub struct Struct_amqp_exchange_unbind_t_ {
     pub arguments: amqp_table_t,
 }
 pub type amqp_exchange_unbind_t = Struct_amqp_exchange_unbind_t_;
+#[repr(C)]
 pub struct Struct_amqp_exchange_unbind_ok_t_ {
     pub dummy: ::libc::c_char,
 }
 pub type amqp_exchange_unbind_ok_t = Struct_amqp_exchange_unbind_ok_t_;
-#[deriving(Show)]
+#[repr(C)]
 pub struct Struct_amqp_queue_declare_t_ {
     pub ticket: uint16_t,
     pub queue: amqp_bytes_t,
@@ -525,12 +575,14 @@ pub struct Struct_amqp_queue_declare_t_ {
     pub arguments: amqp_table_t,
 }
 pub type amqp_queue_declare_t = Struct_amqp_queue_declare_t_;
+#[repr(C)]
 pub struct Struct_amqp_queue_declare_ok_t_ {
     pub queue: amqp_bytes_t,
     pub message_count: uint32_t,
     pub consumer_count: uint32_t,
 }
 pub type amqp_queue_declare_ok_t = Struct_amqp_queue_declare_ok_t_;
+#[repr(C)]
 pub struct Struct_amqp_queue_bind_t_ {
     pub ticket: uint16_t,
     pub queue: amqp_bytes_t,
@@ -540,20 +592,24 @@ pub struct Struct_amqp_queue_bind_t_ {
     pub arguments: amqp_table_t,
 }
 pub type amqp_queue_bind_t = Struct_amqp_queue_bind_t_;
+#[repr(C)]
 pub struct Struct_amqp_queue_bind_ok_t_ {
     pub dummy: ::libc::c_char,
 }
 pub type amqp_queue_bind_ok_t = Struct_amqp_queue_bind_ok_t_;
+#[repr(C)]
 pub struct Struct_amqp_queue_purge_t_ {
     pub ticket: uint16_t,
     pub queue: amqp_bytes_t,
     pub nowait: amqp_boolean_t,
 }
 pub type amqp_queue_purge_t = Struct_amqp_queue_purge_t_;
+#[repr(C)]
 pub struct Struct_amqp_queue_purge_ok_t_ {
     pub message_count: uint32_t,
 }
 pub type amqp_queue_purge_ok_t = Struct_amqp_queue_purge_ok_t_;
+#[repr(C)]
 pub struct Struct_amqp_queue_delete_t_ {
     pub ticket: uint16_t,
     pub queue: amqp_bytes_t,
@@ -562,10 +618,12 @@ pub struct Struct_amqp_queue_delete_t_ {
     pub nowait: amqp_boolean_t,
 }
 pub type amqp_queue_delete_t = Struct_amqp_queue_delete_t_;
+#[repr(C)]
 pub struct Struct_amqp_queue_delete_ok_t_ {
     pub message_count: uint32_t,
 }
 pub type amqp_queue_delete_ok_t = Struct_amqp_queue_delete_ok_t_;
+#[repr(C)]
 pub struct Struct_amqp_queue_unbind_t_ {
     pub ticket: uint16_t,
     pub queue: amqp_bytes_t,
@@ -574,20 +632,24 @@ pub struct Struct_amqp_queue_unbind_t_ {
     pub arguments: amqp_table_t,
 }
 pub type amqp_queue_unbind_t = Struct_amqp_queue_unbind_t_;
+#[repr(C)]
 pub struct Struct_amqp_queue_unbind_ok_t_ {
     pub dummy: ::libc::c_char,
 }
 pub type amqp_queue_unbind_ok_t = Struct_amqp_queue_unbind_ok_t_;
+#[repr(C)]
 pub struct Struct_amqp_basic_qos_t_ {
     pub prefetch_size: uint32_t,
     pub prefetch_count: uint16_t,
     pub global: amqp_boolean_t,
 }
 pub type amqp_basic_qos_t = Struct_amqp_basic_qos_t_;
+#[repr(C)]
 pub struct Struct_amqp_basic_qos_ok_t_ {
     pub dummy: ::libc::c_char,
 }
 pub type amqp_basic_qos_ok_t = Struct_amqp_basic_qos_ok_t_;
+#[repr(C)]
 pub struct Struct_amqp_basic_consume_t_ {
     pub ticket: uint16_t,
     pub queue: amqp_bytes_t,
@@ -599,19 +661,23 @@ pub struct Struct_amqp_basic_consume_t_ {
     pub arguments: amqp_table_t,
 }
 pub type amqp_basic_consume_t = Struct_amqp_basic_consume_t_;
+#[repr(C)]
 pub struct Struct_amqp_basic_consume_ok_t_ {
     pub consumer_tag: amqp_bytes_t,
 }
 pub type amqp_basic_consume_ok_t = Struct_amqp_basic_consume_ok_t_;
+#[repr(C)]
 pub struct Struct_amqp_basic_cancel_t_ {
     pub consumer_tag: amqp_bytes_t,
     pub nowait: amqp_boolean_t,
 }
 pub type amqp_basic_cancel_t = Struct_amqp_basic_cancel_t_;
+#[repr(C)]
 pub struct Struct_amqp_basic_cancel_ok_t_ {
     pub consumer_tag: amqp_bytes_t,
 }
 pub type amqp_basic_cancel_ok_t = Struct_amqp_basic_cancel_ok_t_;
+#[repr(C)]
 pub struct Struct_amqp_basic_publish_t_ {
     pub ticket: uint16_t,
     pub exchange: amqp_bytes_t,
@@ -620,6 +686,7 @@ pub struct Struct_amqp_basic_publish_t_ {
     pub immediate: amqp_boolean_t,
 }
 pub type amqp_basic_publish_t = Struct_amqp_basic_publish_t_;
+#[repr(C)]
 pub struct Struct_amqp_basic_return_t_ {
     pub reply_code: uint16_t,
     pub reply_text: amqp_bytes_t,
@@ -627,6 +694,7 @@ pub struct Struct_amqp_basic_return_t_ {
     pub routing_key: amqp_bytes_t,
 }
 pub type amqp_basic_return_t = Struct_amqp_basic_return_t_;
+#[repr(C)]
 pub struct Struct_amqp_basic_deliver_t_ {
     pub consumer_tag: amqp_bytes_t,
     pub delivery_tag: uint64_t,
@@ -635,12 +703,14 @@ pub struct Struct_amqp_basic_deliver_t_ {
     pub routing_key: amqp_bytes_t,
 }
 pub type amqp_basic_deliver_t = Struct_amqp_basic_deliver_t_;
+#[repr(C)]
 pub struct Struct_amqp_basic_get_t_ {
     pub ticket: uint16_t,
     pub queue: amqp_bytes_t,
     pub no_ack: amqp_boolean_t,
 }
 pub type amqp_basic_get_t = Struct_amqp_basic_get_t_;
+#[repr(C)]
 pub struct Struct_amqp_basic_get_ok_t_ {
     pub delivery_tag: uint64_t,
     pub redelivered: amqp_boolean_t,
@@ -649,95 +719,116 @@ pub struct Struct_amqp_basic_get_ok_t_ {
     pub message_count: uint32_t,
 }
 pub type amqp_basic_get_ok_t = Struct_amqp_basic_get_ok_t_;
+#[repr(C)]
 pub struct Struct_amqp_basic_get_empty_t_ {
     pub cluster_id: amqp_bytes_t,
 }
 pub type amqp_basic_get_empty_t = Struct_amqp_basic_get_empty_t_;
+#[repr(C)]
 pub struct Struct_amqp_basic_ack_t_ {
     pub delivery_tag: uint64_t,
     pub multiple: amqp_boolean_t,
 }
 pub type amqp_basic_ack_t = Struct_amqp_basic_ack_t_;
+#[repr(C)]
 pub struct Struct_amqp_basic_reject_t_ {
     pub delivery_tag: uint64_t,
     pub requeue: amqp_boolean_t,
 }
 pub type amqp_basic_reject_t = Struct_amqp_basic_reject_t_;
+#[repr(C)]
 pub struct Struct_amqp_basic_recover_async_t_ {
     pub requeue: amqp_boolean_t,
 }
 pub type amqp_basic_recover_async_t = Struct_amqp_basic_recover_async_t_;
+#[repr(C)]
 pub struct Struct_amqp_basic_recover_t_ {
     pub requeue: amqp_boolean_t,
 }
 pub type amqp_basic_recover_t = Struct_amqp_basic_recover_t_;
+#[repr(C)]
 pub struct Struct_amqp_basic_recover_ok_t_ {
     pub dummy: ::libc::c_char,
 }
 pub type amqp_basic_recover_ok_t = Struct_amqp_basic_recover_ok_t_;
+#[repr(C)]
 pub struct Struct_amqp_basic_nack_t_ {
     pub delivery_tag: uint64_t,
     pub multiple: amqp_boolean_t,
     pub requeue: amqp_boolean_t,
 }
 pub type amqp_basic_nack_t = Struct_amqp_basic_nack_t_;
+#[repr(C)]
 pub struct Struct_amqp_tx_select_t_ {
     pub dummy: ::libc::c_char,
 }
 pub type amqp_tx_select_t = Struct_amqp_tx_select_t_;
+#[repr(C)]
 pub struct Struct_amqp_tx_select_ok_t_ {
     pub dummy: ::libc::c_char,
 }
 pub type amqp_tx_select_ok_t = Struct_amqp_tx_select_ok_t_;
+#[repr(C)]
 pub struct Struct_amqp_tx_commit_t_ {
     pub dummy: ::libc::c_char,
 }
 pub type amqp_tx_commit_t = Struct_amqp_tx_commit_t_;
+#[repr(C)]
 pub struct Struct_amqp_tx_commit_ok_t_ {
     pub dummy: ::libc::c_char,
 }
 pub type amqp_tx_commit_ok_t = Struct_amqp_tx_commit_ok_t_;
+#[repr(C)]
 pub struct Struct_amqp_tx_rollback_t_ {
     pub dummy: ::libc::c_char,
 }
 pub type amqp_tx_rollback_t = Struct_amqp_tx_rollback_t_;
+#[repr(C)]
 pub struct Struct_amqp_tx_rollback_ok_t_ {
     pub dummy: ::libc::c_char,
 }
 pub type amqp_tx_rollback_ok_t = Struct_amqp_tx_rollback_ok_t_;
+#[repr(C)]
 pub struct Struct_amqp_confirm_select_t_ {
     pub nowait: amqp_boolean_t,
 }
 pub type amqp_confirm_select_t = Struct_amqp_confirm_select_t_;
+#[repr(C)]
 pub struct Struct_amqp_confirm_select_ok_t_ {
     pub dummy: ::libc::c_char,
 }
 pub type amqp_confirm_select_ok_t = Struct_amqp_confirm_select_ok_t_;
+#[repr(C)]
 pub struct Struct_amqp_connection_properties_t_ {
     pub _flags: amqp_flags_t,
     pub dummy: ::libc::c_char,
 }
 pub type amqp_connection_properties_t = Struct_amqp_connection_properties_t_;
+#[repr(C)]
 pub struct Struct_amqp_channel_properties_t_ {
     pub _flags: amqp_flags_t,
     pub dummy: ::libc::c_char,
 }
 pub type amqp_channel_properties_t = Struct_amqp_channel_properties_t_;
+#[repr(C)]
 pub struct Struct_amqp_access_properties_t_ {
     pub _flags: amqp_flags_t,
     pub dummy: ::libc::c_char,
 }
 pub type amqp_access_properties_t = Struct_amqp_access_properties_t_;
+#[repr(C)]
 pub struct Struct_amqp_exchange_properties_t_ {
     pub _flags: amqp_flags_t,
     pub dummy: ::libc::c_char,
 }
 pub type amqp_exchange_properties_t = Struct_amqp_exchange_properties_t_;
+#[repr(C)]
 pub struct Struct_amqp_queue_properties_t_ {
     pub _flags: amqp_flags_t,
     pub dummy: ::libc::c_char,
 }
 pub type amqp_queue_properties_t = Struct_amqp_queue_properties_t_;
+#[repr(C)]
 pub struct Struct_amqp_basic_properties_t_ {
     pub _flags: amqp_flags_t,
     pub content_type: amqp_bytes_t,
@@ -756,22 +847,26 @@ pub struct Struct_amqp_basic_properties_t_ {
     pub cluster_id: amqp_bytes_t,
 }
 pub type amqp_basic_properties_t = Struct_amqp_basic_properties_t_;
+#[repr(C)]
 pub struct Struct_amqp_tx_properties_t_ {
     pub _flags: amqp_flags_t,
     pub dummy: ::libc::c_char,
 }
 pub type amqp_tx_properties_t = Struct_amqp_tx_properties_t_;
+#[repr(C)]
 pub struct Struct_amqp_confirm_properties_t_ {
     pub _flags: amqp_flags_t,
     pub dummy: ::libc::c_char,
 }
 pub type amqp_confirm_properties_t = Struct_amqp_confirm_properties_t_;
+#[repr(C)]
 pub struct Struct_amqp_message_t_ {
     pub properties: amqp_basic_properties_t,
     pub body: amqp_bytes_t,
     pub pool: amqp_pool_t,
 }
 pub type amqp_message_t = Struct_amqp_message_t_;
+#[repr(C)]
 pub struct Struct_amqp_envelope_t_ {
     pub channel: amqp_channel_t,
     pub consumer_tag: amqp_bytes_t,
@@ -782,6 +877,7 @@ pub struct Struct_amqp_envelope_t_ {
     pub message: amqp_message_t,
 }
 pub type amqp_envelope_t = Struct_amqp_envelope_t_;
+#[repr(C)]
 pub struct Struct_amqp_connection_info {
     pub user: *mut ::libc::c_char,
     pub password: *mut ::libc::c_char,
@@ -840,6 +936,7 @@ pub type clock_t = __darwin_clock_t;
 pub type time_t = __darwin_time_t;
 pub type useconds_t = __darwin_useconds_t;
 pub type suseconds_t = __darwin_suseconds_t;
+#[repr(C)]
 pub struct Struct_fd_set {
     pub fds_bits: [__int32_t, ..32u],
 }
@@ -859,23 +956,28 @@ pub type fsblkcnt_t = __darwin_fsblkcnt_t;
 pub type fsfilcnt_t = __darwin_fsfilcnt_t;
 pub type sa_family_t = __uint8_t;
 pub type socklen_t = __darwin_socklen_t;
+#[repr(C)]
 pub struct Struct_linger {
     pub l_onoff: ::libc::c_int,
     pub l_linger: ::libc::c_int,
 }
+#[repr(C)]
 pub struct Struct_so_np_extensions {
     pub npx_flags: u_int32_t,
     pub npx_mask: u_int32_t,
 }
+#[repr(C)]
 pub struct Struct_sockaddr {
     pub sa_len: __uint8_t,
     pub sa_family: sa_family_t,
     pub sa_data: [::libc::c_char, ..14u],
 }
+#[repr(C)]
 pub struct Struct_sockproto {
     pub sp_family: __uint16_t,
     pub sp_protocol: __uint16_t,
 }
+#[repr(C)]
 pub struct Struct_sockaddr_storage {
     pub ss_len: __uint8_t,
     pub ss_family: sa_family_t,
@@ -883,6 +985,7 @@ pub struct Struct_sockaddr_storage {
     pub __ss_align: __int64_t,
     pub __ss_pad2: [::libc::c_char, ..112u],
 }
+#[repr(C)]
 pub struct Struct_msghdr {
     pub msg_name: *mut ::libc::c_void,
     pub msg_namelen: socklen_t,
@@ -892,20 +995,24 @@ pub struct Struct_msghdr {
     pub msg_controllen: socklen_t,
     pub msg_flags: ::libc::c_int,
 }
+#[repr(C)]
 pub struct Struct_cmsghdr {
     pub cmsg_len: socklen_t,
     pub cmsg_level: ::libc::c_int,
     pub cmsg_type: ::libc::c_int,
 }
+#[repr(C)]
 pub struct Struct_sf_hdtr {
     pub headers: *mut Struct_iovec,
     pub hdr_cnt: ::libc::c_int,
     pub trailers: *mut Struct_iovec,
     pub trl_cnt: ::libc::c_int,
 }
+#[repr(C)]
 pub struct Struct_in_addr {
     pub s_addr: in_addr_t,
 }
+#[repr(C)]
 pub struct Struct_sockaddr_in {
     pub sin_len: __uint8_t,
     pub sin_family: sa_family_t,
@@ -913,33 +1020,40 @@ pub struct Struct_sockaddr_in {
     pub sin_addr: Struct_in_addr,
     pub sin_zero: [::libc::c_char, ..8u],
 }
+#[repr(C)]
 pub struct Struct_ip_opts {
     pub ip_dst: Struct_in_addr,
     pub ip_opts: [::libc::c_char, ..40u],
 }
+#[repr(C)]
 pub struct Struct_ip_mreq {
     pub imr_multiaddr: Struct_in_addr,
     pub imr_interface: Struct_in_addr,
 }
+#[repr(C)]
 pub struct Struct_ip_mreqn {
     pub imr_multiaddr: Struct_in_addr,
     pub imr_address: Struct_in_addr,
     pub imr_ifindex: ::libc::c_int,
 }
+#[repr(C)]
 pub struct Struct_ip_mreq_source {
     pub imr_multiaddr: Struct_in_addr,
     pub imr_sourceaddr: Struct_in_addr,
     pub imr_interface: Struct_in_addr,
 }
+#[repr(C)]
 pub struct Struct_group_req {
     pub gr_interface: uint32_t,
     pub gr_group: Struct_sockaddr_storage,
 }
+#[repr(C)]
 pub struct Struct_group_source_req {
     pub gsr_interface: uint32_t,
     pub gsr_group: Struct_sockaddr_storage,
     pub gsr_source: Struct_sockaddr_storage,
 }
+#[repr(C)]
 pub struct Struct___msfilterreq {
     pub msfr_ifindex: uint32_t,
     pub msfr_fmode: uint32_t,
@@ -948,14 +1062,17 @@ pub struct Struct___msfilterreq {
     pub msfr_group: Struct_sockaddr_storage,
     pub msfr_srcs: *mut Struct_sockaddr_storage,
 }
+#[repr(C)]
 pub struct Struct_in_pktinfo {
     pub ipi_ifindex: ::libc::c_uint,
     pub ipi_spec_dst: Struct_in_addr,
     pub ipi_addr: Struct_in_addr,
 }
+#[repr(C)]
 pub struct Struct_in6_addr {
     pub __u6_addr: Union_Unnamed5,
 }
+#[repr(C)]
 pub struct Union_Unnamed5 {
     pub data: [u32, ..4u],
 }
@@ -970,6 +1087,7 @@ impl Union_Unnamed5 {
         unsafe { ::std::mem::transmute(self) }
     }
 }
+#[repr(C)]
 pub struct Struct_sockaddr_in6 {
     pub sin6_len: __uint8_t,
     pub sin6_family: sa_family_t,
@@ -978,14 +1096,17 @@ pub struct Struct_sockaddr_in6 {
     pub sin6_addr: Struct_in6_addr,
     pub sin6_scope_id: __uint32_t,
 }
+#[repr(C)]
 pub struct Struct_ipv6_mreq {
     pub ipv6mr_multiaddr: Struct_in6_addr,
     pub ipv6mr_interface: ::libc::c_uint,
 }
+#[repr(C)]
 pub struct Struct_in6_pktinfo {
     pub ipi6_addr: Struct_in6_addr,
     pub ipi6_ifindex: ::libc::c_uint,
 }
+#[repr(C)]
 pub struct Struct_ip6_mtuinfo {
     pub ip6m_addr: Struct_sockaddr_in6,
     pub ip6m_mtu: uint32_t,
@@ -998,7 +1119,7 @@ pub type amqp_socket_writev_fn =
 pub type amqp_socket_send_fn =
     ::std::option::Option<extern "C" fn
                               (arg1: *mut ::libc::c_void,
-                               arg2: *::libc::c_void, arg3: size_t)
+                               arg2: *const ::libc::c_void, arg3: size_t)
                               -> ssize_t>;
 pub type amqp_socket_recv_fn =
     ::std::option::Option<extern "C" fn
@@ -1008,8 +1129,9 @@ pub type amqp_socket_recv_fn =
 pub type amqp_socket_open_fn =
     ::std::option::Option<extern "C" fn
                               (arg1: *mut ::libc::c_void,
-                               arg2: *::libc::c_char, arg3: ::libc::c_int,
-                               arg4: *mut Struct_timeval) -> ::libc::c_int>;
+                               arg2: *const ::libc::c_char,
+                               arg3: ::libc::c_int, arg4: *mut Struct_timeval)
+                              -> ::libc::c_int>;
 pub type amqp_socket_close_fn =
     ::std::option::Option<extern "C" fn(arg1: *mut ::libc::c_void)
                               -> ::libc::c_int>;
@@ -1018,6 +1140,7 @@ pub type amqp_socket_get_sockfd_fn =
                               -> ::libc::c_int>;
 pub type amqp_socket_delete_fn =
     ::std::option::Option<extern "C" fn(arg1: *mut ::libc::c_void)>;
+#[repr(C)]
 pub struct Struct_amqp_socket_class_t {
     pub writev: amqp_socket_writev_fn,
     pub send: amqp_socket_send_fn,
@@ -1027,25 +1150,31 @@ pub struct Struct_amqp_socket_class_t {
     pub get_sockfd: amqp_socket_get_sockfd_fn,
     pub delete: amqp_socket_delete_fn,
 }
+#[repr(C)]
 pub struct Struct_amqp_socket_t_ {
-    pub klass: *Struct_amqp_socket_class_t,
+    pub klass: *const Struct_amqp_socket_class_t,
 }
+#[repr(C)]
 pub struct Struct_timespec {
     pub tv_sec: __darwin_time_t,
     pub tv_nsec: ::libc::c_long,
 }
+#[repr(C)]
 pub struct Struct_timeval {
     pub tv_sec: __darwin_time_t,
     pub tv_usec: __darwin_suseconds_t,
 }
+#[repr(C)]
 pub struct Struct_itimerval {
     pub it_interval: Struct_timeval,
     pub it_value: Struct_timeval,
 }
+#[repr(C)]
 pub struct Struct_timezone {
     pub tz_minuteswest: ::libc::c_int,
     pub tz_dsttime: ::libc::c_int,
 }
+#[repr(C)]
 pub struct Struct_clockinfo {
     pub hz: ::libc::c_int,
     pub tick: ::libc::c_int,
@@ -1053,6 +1182,7 @@ pub struct Struct_clockinfo {
     pub stathz: ::libc::c_int,
     pub profhz: ::libc::c_int,
 }
+#[repr(C)]
 pub struct Struct_tm {
     pub tm_sec: ::libc::c_int,
     pub tm_min: ::libc::c_int,
@@ -1066,6 +1196,7 @@ pub struct Struct_tm {
     pub tm_gmtoff: ::libc::c_long,
     pub tm_zone: *mut ::libc::c_char,
 }
+#[repr(C)]
 pub struct Struct_amqp_timer_t_ {
     pub current_timestamp: uint64_t,
     pub timeout_timestamp: uint64_t,
@@ -1079,17 +1210,20 @@ pub static CONNECTION_STATE_INITIAL: ::libc::c_uint = 1;
 pub static CONNECTION_STATE_HEADER: ::libc::c_uint = 2;
 pub static CONNECTION_STATE_BODY: ::libc::c_uint = 3;
 pub type amqp_connection_state_enum = Enum_amqp_connection_state_enum_;
+#[repr(C)]
 pub struct Struct_amqp_link_t_ {
     pub next: *mut Struct_amqp_link_t_,
     pub data: *mut ::libc::c_void,
 }
 pub type amqp_link_t = Struct_amqp_link_t_;
+#[repr(C)]
 pub struct Struct_amqp_pool_table_entry_t_ {
     pub next: *mut Struct_amqp_pool_table_entry_t_,
     pub pool: amqp_pool_t,
     pub channel: amqp_channel_t,
 }
 pub type amqp_pool_table_entry_t = Struct_amqp_pool_table_entry_t_;
+#[repr(C)]
 pub struct Struct_amqp_connection_state_t_ {
     pub pool_table: [*mut amqp_pool_table_entry_t, ..16u],
     pub state: amqp_connection_state_enum,
@@ -1114,6 +1248,7 @@ pub struct Struct_amqp_connection_state_t_ {
     pub properties_pool: amqp_pool_t,
 }
 pub type __va_list_tag = Struct___va_list_tag;
+#[repr(C)]
 pub struct Struct___va_list_tag {
     pub gp_offset: ::libc::c_uint,
     pub fp_offset: ::libc::c_uint,
@@ -1135,18 +1270,18 @@ extern "C" {
     pub static mut getdate_err: ::libc::c_int;
     pub static mut timezone: ::libc::c_long;
     pub static mut daylight: ::libc::c_int;
-    pub fn readv(arg1: ::libc::c_int, arg2: *Struct_iovec,
+    pub fn readv(arg1: ::libc::c_int, arg2: *const Struct_iovec,
                  arg3: ::libc::c_int) -> ssize_t;
-    pub fn writev(arg1: ::libc::c_int, arg2: *Struct_iovec,
+    pub fn writev(arg1: ::libc::c_int, arg2: *const Struct_iovec,
                   arg3: ::libc::c_int) -> ssize_t;
     pub fn amqp_version_number() -> uint32_t;
-    pub fn amqp_version() -> *::libc::c_char;
+    pub fn amqp_version() -> *const ::libc::c_char;
     pub fn amqp_constant_name(constantNumber: ::libc::c_int) ->
-     *::libc::c_char;
+     *const ::libc::c_char;
     pub fn amqp_constant_is_hard_error(constantNumber: ::libc::c_int) ->
      amqp_boolean_t;
     pub fn amqp_method_name(methodNumber: amqp_method_number_t) ->
-     *::libc::c_char;
+     *const ::libc::c_char;
     pub fn amqp_method_has_content(methodNumber: amqp_method_number_t) ->
      amqp_boolean_t;
     pub fn amqp_decode_method(methodNumber: amqp_method_number_t,
@@ -1260,7 +1395,7 @@ extern "C" {
      *mut ::libc::c_void;
     pub fn amqp_pool_alloc_bytes(pool: *mut amqp_pool_t, amount: size_t,
                                  output: *mut amqp_bytes_t);
-    pub fn amqp_cstring_bytes(cstr: *::libc::c_char) -> amqp_bytes_t;
+    pub fn amqp_cstring_bytes(cstr: *const ::libc::c_char) -> amqp_bytes_t;
     pub fn amqp_bytes_malloc_dup(src: amqp_bytes_t) -> amqp_bytes_t;
     pub fn amqp_bytes_malloc(amount: size_t) -> amqp_bytes_t;
     pub fn amqp_bytes_free(bytes: amqp_bytes_t);
@@ -1288,10 +1423,11 @@ extern "C" {
                                                      amqp_connection_state_t,
                                                  channel: amqp_channel_t);
     pub fn amqp_send_frame(state: amqp_connection_state_t,
-                           frame: *amqp_frame_t) -> ::libc::c_int;
-    pub fn amqp_table_entry_cmp(entry1: *::libc::c_void,
-                                entry2: *::libc::c_void) -> ::libc::c_int;
-    pub fn amqp_open_socket(hostname: *::libc::c_char,
+                           frame: *const amqp_frame_t) -> ::libc::c_int;
+    pub fn amqp_table_entry_cmp(entry1: *const ::libc::c_void,
+                                entry2: *const ::libc::c_void) ->
+     ::libc::c_int;
+    pub fn amqp_open_socket(hostname: *const ::libc::c_char,
                             portnumber: ::libc::c_int) -> ::libc::c_int;
     pub fn amqp_send_header(state: amqp_connection_state_t) -> ::libc::c_int;
     pub fn amqp_frames_enqueued(state: amqp_connection_state_t) ->
@@ -1326,17 +1462,18 @@ extern "C" {
      *mut ::libc::c_void;
     pub fn amqp_get_rpc_reply(state: amqp_connection_state_t) ->
      amqp_rpc_reply_t;
-    pub fn amqp_login(state: amqp_connection_state_t, vhost: *::libc::c_char,
+    pub fn amqp_login(state: amqp_connection_state_t,
+                      vhost: *const ::libc::c_char,
                       channel_max: ::libc::c_int, frame_max: ::libc::c_int,
                       heartbeat: ::libc::c_int,
                       sasl_method: amqp_sasl_method_enum, ...) ->
      amqp_rpc_reply_t;
     pub fn amqp_login_with_properties(state: amqp_connection_state_t,
-                                      vhost: *::libc::c_char,
+                                      vhost: *const ::libc::c_char,
                                       channel_max: ::libc::c_int,
                                       frame_max: ::libc::c_int,
                                       heartbeat: ::libc::c_int,
-                                      properties: *amqp_table_t,
+                                      properties: *const amqp_table_t,
                                       sasl_method: amqp_sasl_method_enum, ...)
      -> amqp_rpc_reply_t;
     pub fn amqp_basic_publish(state: amqp_connection_state_t,
@@ -1344,7 +1481,8 @@ extern "C" {
                               routing_key: amqp_bytes_t,
                               mandatory: amqp_boolean_t,
                               immediate: amqp_boolean_t,
-                              properties: *Struct_amqp_basic_properties_t_,
+                              properties:
+                                  *const Struct_amqp_basic_properties_t_,
                               body: amqp_bytes_t) -> ::libc::c_int;
     pub fn amqp_channel_close(state: amqp_connection_state_t,
                               channel: amqp_channel_t, code: ::libc::c_int) ->
@@ -1367,7 +1505,7 @@ extern "C" {
     pub fn amqp_data_in_buffer(state: amqp_connection_state_t) ->
      amqp_boolean_t;
     pub fn amqp_error_string(err: ::libc::c_int) -> *mut ::libc::c_char;
-    pub fn amqp_error_string2(err: ::libc::c_int) -> *::libc::c_char;
+    pub fn amqp_error_string2(err: ::libc::c_int) -> *const ::libc::c_char;
     pub fn amqp_decode_table(encoded: amqp_bytes_t, pool: *mut amqp_pool_t,
                              output: *mut amqp_table_t, offset: *mut size_t)
      -> ::libc::c_int;
@@ -1391,10 +1529,11 @@ extern "C" {
     pub fn amqp_parse_url(url: *mut ::libc::c_char,
                           parsed: *mut Struct_amqp_connection_info) ->
      ::libc::c_int;
-    pub fn amqp_socket_open(_self: *mut amqp_socket_t, host: *::libc::c_char,
-                            port: ::libc::c_int) -> ::libc::c_int;
+    pub fn amqp_socket_open(_self: *mut amqp_socket_t,
+                            host: *const ::libc::c_char, port: ::libc::c_int)
+     -> ::libc::c_int;
     pub fn amqp_socket_open_noblock(_self: *mut amqp_socket_t,
-                                    host: *::libc::c_char,
+                                    host: *const ::libc::c_char,
                                     port: ::libc::c_int,
                                     timeout: *mut Struct_timeval) ->
      ::libc::c_int;
@@ -1403,98 +1542,102 @@ extern "C" {
      *mut amqp_socket_t;
     pub fn amqp_get_server_properties(state: amqp_connection_state_t) ->
      *mut amqp_table_t;
-    pub fn memchr(arg1: *::libc::c_void, arg2: ::libc::c_int, arg3: size_t) ->
-     *mut ::libc::c_void;
-    pub fn memcmp(arg1: *::libc::c_void, arg2: *::libc::c_void, arg3: size_t)
-     -> ::libc::c_int;
-    pub fn memcpy(arg1: *mut ::libc::c_void, arg2: *::libc::c_void,
+    pub fn memchr(arg1: *const ::libc::c_void, arg2: ::libc::c_int,
                   arg3: size_t) -> *mut ::libc::c_void;
-    pub fn memmove(arg1: *mut ::libc::c_void, arg2: *::libc::c_void,
+    pub fn memcmp(arg1: *const ::libc::c_void, arg2: *const ::libc::c_void,
+                  arg3: size_t) -> ::libc::c_int;
+    pub fn memcpy(arg1: *mut ::libc::c_void, arg2: *const ::libc::c_void,
+                  arg3: size_t) -> *mut ::libc::c_void;
+    pub fn memmove(arg1: *mut ::libc::c_void, arg2: *const ::libc::c_void,
                    arg3: size_t) -> *mut ::libc::c_void;
     pub fn memset(arg1: *mut ::libc::c_void, arg2: ::libc::c_int,
                   arg3: size_t) -> *mut ::libc::c_void;
-    pub fn strcat(arg1: *mut ::libc::c_char, arg2: *::libc::c_char) ->
+    pub fn strcat(arg1: *mut ::libc::c_char, arg2: *const ::libc::c_char) ->
      *mut ::libc::c_char;
-    pub fn strchr(arg1: *::libc::c_char, arg2: ::libc::c_int) ->
+    pub fn strchr(arg1: *const ::libc::c_char, arg2: ::libc::c_int) ->
      *mut ::libc::c_char;
-    pub fn strcmp(arg1: *::libc::c_char, arg2: *::libc::c_char) ->
+    pub fn strcmp(arg1: *const ::libc::c_char, arg2: *const ::libc::c_char) ->
      ::libc::c_int;
-    pub fn strcoll(arg1: *::libc::c_char, arg2: *::libc::c_char) ->
-     ::libc::c_int;
-    pub fn strcpy(arg1: *mut ::libc::c_char, arg2: *::libc::c_char) ->
-     *mut ::libc::c_char;
-    pub fn strcspn(arg1: *::libc::c_char, arg2: *::libc::c_char) -> size_t;
-    pub fn strerror(arg1: ::libc::c_int) -> *mut ::libc::c_char;
-    pub fn strlen(arg1: *::libc::c_char) -> size_t;
-    pub fn strncat(arg1: *mut ::libc::c_char, arg2: *::libc::c_char,
-                   arg3: size_t) -> *mut ::libc::c_char;
-    pub fn strncmp(arg1: *::libc::c_char, arg2: *::libc::c_char, arg3: size_t)
+    pub fn strcoll(arg1: *const ::libc::c_char, arg2: *const ::libc::c_char)
      -> ::libc::c_int;
-    pub fn strncpy(arg1: *mut ::libc::c_char, arg2: *::libc::c_char,
+    pub fn strcpy(arg1: *mut ::libc::c_char, arg2: *const ::libc::c_char) ->
+     *mut ::libc::c_char;
+    pub fn strcspn(arg1: *const ::libc::c_char, arg2: *const ::libc::c_char)
+     -> size_t;
+    pub fn strerror(arg1: ::libc::c_int) -> *mut ::libc::c_char;
+    pub fn strlen(arg1: *const ::libc::c_char) -> size_t;
+    pub fn strncat(arg1: *mut ::libc::c_char, arg2: *const ::libc::c_char,
                    arg3: size_t) -> *mut ::libc::c_char;
-    pub fn strpbrk(arg1: *::libc::c_char, arg2: *::libc::c_char) ->
+    pub fn strncmp(arg1: *const ::libc::c_char, arg2: *const ::libc::c_char,
+                   arg3: size_t) -> ::libc::c_int;
+    pub fn strncpy(arg1: *mut ::libc::c_char, arg2: *const ::libc::c_char,
+                   arg3: size_t) -> *mut ::libc::c_char;
+    pub fn strpbrk(arg1: *const ::libc::c_char, arg2: *const ::libc::c_char)
+     -> *mut ::libc::c_char;
+    pub fn strrchr(arg1: *const ::libc::c_char, arg2: ::libc::c_int) ->
      *mut ::libc::c_char;
-    pub fn strrchr(arg1: *::libc::c_char, arg2: ::libc::c_int) ->
+    pub fn strspn(arg1: *const ::libc::c_char, arg2: *const ::libc::c_char) ->
+     size_t;
+    pub fn strstr(arg1: *const ::libc::c_char, arg2: *const ::libc::c_char) ->
      *mut ::libc::c_char;
-    pub fn strspn(arg1: *::libc::c_char, arg2: *::libc::c_char) -> size_t;
-    pub fn strstr(arg1: *::libc::c_char, arg2: *::libc::c_char) ->
+    pub fn strtok(arg1: *mut ::libc::c_char, arg2: *const ::libc::c_char) ->
      *mut ::libc::c_char;
-    pub fn strtok(arg1: *mut ::libc::c_char, arg2: *::libc::c_char) ->
-     *mut ::libc::c_char;
-    pub fn strxfrm(arg1: *mut ::libc::c_char, arg2: *::libc::c_char,
+    pub fn strxfrm(arg1: *mut ::libc::c_char, arg2: *const ::libc::c_char,
                    arg3: size_t) -> size_t;
-    pub fn strtok_r(arg1: *mut ::libc::c_char, arg2: *::libc::c_char,
+    pub fn strtok_r(arg1: *mut ::libc::c_char, arg2: *const ::libc::c_char,
                     arg3: *mut *mut ::libc::c_char) -> *mut ::libc::c_char;
     pub fn strerror_r(arg1: ::libc::c_int, arg2: *mut ::libc::c_char,
                       arg3: size_t) -> ::libc::c_int;
-    pub fn strdup(arg1: *::libc::c_char) -> *mut ::libc::c_char;
-    pub fn memccpy(arg1: *mut ::libc::c_void, arg2: *::libc::c_void,
+    pub fn strdup(arg1: *const ::libc::c_char) -> *mut ::libc::c_char;
+    pub fn memccpy(arg1: *mut ::libc::c_void, arg2: *const ::libc::c_void,
                    arg3: ::libc::c_int, arg4: size_t) -> *mut ::libc::c_void;
-    pub fn stpcpy(arg1: *mut ::libc::c_char, arg2: *::libc::c_char) ->
+    pub fn stpcpy(arg1: *mut ::libc::c_char, arg2: *const ::libc::c_char) ->
      *mut ::libc::c_char;
-    pub fn stpncpy(arg1: *mut ::libc::c_char, arg2: *::libc::c_char,
+    pub fn stpncpy(arg1: *mut ::libc::c_char, arg2: *const ::libc::c_char,
                    arg3: size_t) -> *mut ::libc::c_char;
-    pub fn strndup(arg1: *::libc::c_char, arg2: size_t) ->
+    pub fn strndup(arg1: *const ::libc::c_char, arg2: size_t) ->
      *mut ::libc::c_char;
-    pub fn strnlen(arg1: *::libc::c_char, arg2: size_t) -> size_t;
+    pub fn strnlen(arg1: *const ::libc::c_char, arg2: size_t) -> size_t;
     pub fn strsignal(sig: ::libc::c_int) -> *mut ::libc::c_char;
     pub fn memset_s(arg1: *mut ::libc::c_void, arg2: rsize_t,
                     arg3: ::libc::c_int, arg4: rsize_t) -> errno_t;
-    pub fn memmem(arg1: *::libc::c_void, arg2: size_t, arg3: *::libc::c_void,
-                  arg4: size_t) -> *mut ::libc::c_void;
-    pub fn memset_pattern4(arg1: *mut ::libc::c_void, arg2: *::libc::c_void,
-                           arg3: size_t);
-    pub fn memset_pattern8(arg1: *mut ::libc::c_void, arg2: *::libc::c_void,
-                           arg3: size_t);
-    pub fn memset_pattern16(arg1: *mut ::libc::c_void, arg2: *::libc::c_void,
-                            arg3: size_t);
-    pub fn strcasestr(arg1: *::libc::c_char, arg2: *::libc::c_char) ->
-     *mut ::libc::c_char;
-    pub fn strnstr(arg1: *::libc::c_char, arg2: *::libc::c_char, arg3: size_t)
-     -> *mut ::libc::c_char;
-    pub fn strlcat(arg1: *mut ::libc::c_char, arg2: *::libc::c_char,
+    pub fn memmem(arg1: *const ::libc::c_void, arg2: size_t,
+                  arg3: *const ::libc::c_void, arg4: size_t) ->
+     *mut ::libc::c_void;
+    pub fn memset_pattern4(arg1: *mut ::libc::c_void,
+                           arg2: *const ::libc::c_void, arg3: size_t);
+    pub fn memset_pattern8(arg1: *mut ::libc::c_void,
+                           arg2: *const ::libc::c_void, arg3: size_t);
+    pub fn memset_pattern16(arg1: *mut ::libc::c_void,
+                            arg2: *const ::libc::c_void, arg3: size_t);
+    pub fn strcasestr(arg1: *const ::libc::c_char,
+                      arg2: *const ::libc::c_char) -> *mut ::libc::c_char;
+    pub fn strnstr(arg1: *const ::libc::c_char, arg2: *const ::libc::c_char,
+                   arg3: size_t) -> *mut ::libc::c_char;
+    pub fn strlcat(arg1: *mut ::libc::c_char, arg2: *const ::libc::c_char,
                    arg3: size_t) -> size_t;
-    pub fn strlcpy(arg1: *mut ::libc::c_char, arg2: *::libc::c_char,
+    pub fn strlcpy(arg1: *mut ::libc::c_char, arg2: *const ::libc::c_char,
                    arg3: size_t) -> size_t;
     pub fn strmode(arg1: ::libc::c_int, arg2: *mut ::libc::c_char);
-    pub fn strsep(arg1: *mut *mut ::libc::c_char, arg2: *::libc::c_char) ->
-     *mut ::libc::c_char;
-    pub fn swab(arg1: *::libc::c_void, arg2: *mut ::libc::c_void,
+    pub fn strsep(arg1: *mut *mut ::libc::c_char, arg2: *const ::libc::c_char)
+     -> *mut ::libc::c_char;
+    pub fn swab(arg1: *const ::libc::c_void, arg2: *mut ::libc::c_void,
                 arg3: ssize_t);
-    pub fn bcmp(arg1: *::libc::c_void, arg2: *::libc::c_void, arg3: size_t) ->
-     ::libc::c_int;
-    pub fn bcopy(arg1: *::libc::c_void, arg2: *mut ::libc::c_void,
+    pub fn bcmp(arg1: *const ::libc::c_void, arg2: *const ::libc::c_void,
+                arg3: size_t) -> ::libc::c_int;
+    pub fn bcopy(arg1: *const ::libc::c_void, arg2: *mut ::libc::c_void,
                  arg3: size_t);
     pub fn bzero(arg1: *mut ::libc::c_void, arg2: size_t);
-    pub fn index(arg1: *::libc::c_char, arg2: ::libc::c_int) ->
+    pub fn index(arg1: *const ::libc::c_char, arg2: ::libc::c_int) ->
      *mut ::libc::c_char;
-    pub fn rindex(arg1: *::libc::c_char, arg2: ::libc::c_int) ->
+    pub fn rindex(arg1: *const ::libc::c_char, arg2: ::libc::c_int) ->
      *mut ::libc::c_char;
     pub fn ffs(arg1: ::libc::c_int) -> ::libc::c_int;
-    pub fn strcasecmp(arg1: *::libc::c_char, arg2: *::libc::c_char) ->
+    pub fn strcasecmp(arg1: *const ::libc::c_char,
+                      arg2: *const ::libc::c_char) -> ::libc::c_int;
+    pub fn strncasecmp(arg1: *const ::libc::c_char,
+                       arg2: *const ::libc::c_char, arg3: size_t) ->
      ::libc::c_int;
-    pub fn strncasecmp(arg1: *::libc::c_char, arg2: *::libc::c_char,
-                       arg3: size_t) -> ::libc::c_int;
     pub fn ffsl(arg1: ::libc::c_long) -> ::libc::c_int;
     pub fn ffsll(arg1: ::libc::c_longlong) -> ::libc::c_int;
     pub fn fls(arg1: ::libc::c_int) -> ::libc::c_int;
@@ -1502,9 +1645,9 @@ extern "C" {
     pub fn flsll(arg1: ::libc::c_longlong) -> ::libc::c_int;
     pub fn accept(arg1: ::libc::c_int, arg2: *mut Struct_sockaddr,
                   arg3: *mut socklen_t) -> ::libc::c_int;
-    pub fn bind(arg1: ::libc::c_int, arg2: *Struct_sockaddr, arg3: socklen_t)
-     -> ::libc::c_int;
-    pub fn connect(arg1: ::libc::c_int, arg2: *Struct_sockaddr,
+    pub fn bind(arg1: ::libc::c_int, arg2: *const Struct_sockaddr,
+                arg3: socklen_t) -> ::libc::c_int;
+    pub fn connect(arg1: ::libc::c_int, arg2: *const Struct_sockaddr,
                    arg3: socklen_t) -> ::libc::c_int;
     pub fn getpeername(arg1: ::libc::c_int, arg2: *mut Struct_sockaddr,
                        arg3: *mut socklen_t) -> ::libc::c_int;
@@ -1522,15 +1665,15 @@ extern "C" {
      ssize_t;
     pub fn recvmsg(arg1: ::libc::c_int, arg2: *mut Struct_msghdr,
                    arg3: ::libc::c_int) -> ssize_t;
-    pub fn send(arg1: ::libc::c_int, arg2: *::libc::c_void, arg3: size_t,
-                arg4: ::libc::c_int) -> ssize_t;
-    pub fn sendmsg(arg1: ::libc::c_int, arg2: *Struct_msghdr,
+    pub fn send(arg1: ::libc::c_int, arg2: *const ::libc::c_void,
+                arg3: size_t, arg4: ::libc::c_int) -> ssize_t;
+    pub fn sendmsg(arg1: ::libc::c_int, arg2: *const Struct_msghdr,
                    arg3: ::libc::c_int) -> ssize_t;
-    pub fn sendto(arg1: ::libc::c_int, arg2: *::libc::c_void, arg3: size_t,
-                  arg4: ::libc::c_int, arg5: *Struct_sockaddr,
-                  arg6: socklen_t) -> ssize_t;
+    pub fn sendto(arg1: ::libc::c_int, arg2: *const ::libc::c_void,
+                  arg3: size_t, arg4: ::libc::c_int,
+                  arg5: *const Struct_sockaddr, arg6: socklen_t) -> ssize_t;
     pub fn setsockopt(arg1: ::libc::c_int, arg2: ::libc::c_int,
-                      arg3: ::libc::c_int, arg4: *::libc::c_void,
+                      arg3: ::libc::c_int, arg4: *const ::libc::c_void,
                       arg5: socklen_t) -> ::libc::c_int;
     pub fn shutdown(arg1: ::libc::c_int, arg2: ::libc::c_int) ->
      ::libc::c_int;
@@ -1566,29 +1709,31 @@ extern "C" {
     pub fn inet6_option_init(arg1: *mut ::libc::c_void,
                              arg2: *mut *mut Struct_cmsghdr,
                              arg3: ::libc::c_int) -> ::libc::c_int;
-    pub fn inet6_option_append(arg1: *mut Struct_cmsghdr, arg2: *__uint8_t,
-                               arg3: ::libc::c_int, arg4: ::libc::c_int) ->
-     ::libc::c_int;
+    pub fn inet6_option_append(arg1: *mut Struct_cmsghdr,
+                               arg2: *const __uint8_t, arg3: ::libc::c_int,
+                               arg4: ::libc::c_int) -> ::libc::c_int;
     pub fn inet6_option_alloc(arg1: *mut Struct_cmsghdr, arg2: ::libc::c_int,
                               arg3: ::libc::c_int, arg4: ::libc::c_int) ->
      *mut __uint8_t;
-    pub fn inet6_option_next(arg1: *Struct_cmsghdr, arg2: *mut *mut __uint8_t)
+    pub fn inet6_option_next(arg1: *const Struct_cmsghdr,
+                             arg2: *mut *mut __uint8_t) -> ::libc::c_int;
+    pub fn inet6_option_find(arg1: *const Struct_cmsghdr,
+                             arg2: *mut *mut __uint8_t, arg3: ::libc::c_int)
      -> ::libc::c_int;
-    pub fn inet6_option_find(arg1: *Struct_cmsghdr, arg2: *mut *mut __uint8_t,
-                             arg3: ::libc::c_int) -> ::libc::c_int;
     pub fn inet6_rthdr_space(arg1: ::libc::c_int, arg2: ::libc::c_int) ->
      size_t;
     pub fn inet6_rthdr_init(arg1: *mut ::libc::c_void, arg2: ::libc::c_int) ->
      *mut Struct_cmsghdr;
-    pub fn inet6_rthdr_add(arg1: *mut Struct_cmsghdr, arg2: *Struct_in6_addr,
-                           arg3: ::libc::c_uint) -> ::libc::c_int;
+    pub fn inet6_rthdr_add(arg1: *mut Struct_cmsghdr,
+                           arg2: *const Struct_in6_addr, arg3: ::libc::c_uint)
+     -> ::libc::c_int;
     pub fn inet6_rthdr_lasthop(arg1: *mut Struct_cmsghdr,
                                arg2: ::libc::c_uint) -> ::libc::c_int;
-    pub fn inet6_rthdr_segments(arg1: *Struct_cmsghdr) -> ::libc::c_int;
+    pub fn inet6_rthdr_segments(arg1: *const Struct_cmsghdr) -> ::libc::c_int;
     pub fn inet6_rthdr_getaddr(arg1: *mut Struct_cmsghdr, arg2: ::libc::c_int)
      -> *mut Struct_in6_addr;
-    pub fn inet6_rthdr_getflags(arg1: *Struct_cmsghdr, arg2: ::libc::c_int) ->
-     ::libc::c_int;
+    pub fn inet6_rthdr_getflags(arg1: *const Struct_cmsghdr,
+                                arg2: ::libc::c_int) -> ::libc::c_int;
     pub fn inet6_opt_init(arg1: *mut ::libc::c_void, arg2: socklen_t) ->
      ::libc::c_int;
     pub fn inet6_opt_append(arg1: *mut ::libc::c_void, arg2: socklen_t,
@@ -1616,47 +1761,48 @@ extern "C" {
     pub fn inet6_rth_init(arg1: *mut ::libc::c_void, arg2: socklen_t,
                           arg3: ::libc::c_int, arg4: ::libc::c_int) ->
      *mut ::libc::c_void;
-    pub fn inet6_rth_add(arg1: *mut ::libc::c_void, arg2: *Struct_in6_addr) ->
-     ::libc::c_int;
-    pub fn inet6_rth_reverse(arg1: *::libc::c_void, arg2: *mut ::libc::c_void)
-     -> ::libc::c_int;
-    pub fn inet6_rth_segments(arg1: *::libc::c_void) -> ::libc::c_int;
-    pub fn inet6_rth_getaddr(arg1: *::libc::c_void, arg2: ::libc::c_int) ->
-     *mut Struct_in6_addr;
+    pub fn inet6_rth_add(arg1: *mut ::libc::c_void,
+                         arg2: *const Struct_in6_addr) -> ::libc::c_int;
+    pub fn inet6_rth_reverse(arg1: *const ::libc::c_void,
+                             arg2: *mut ::libc::c_void) -> ::libc::c_int;
+    pub fn inet6_rth_segments(arg1: *const ::libc::c_void) -> ::libc::c_int;
+    pub fn inet6_rth_getaddr(arg1: *const ::libc::c_void, arg2: ::libc::c_int)
+     -> *mut Struct_in6_addr;
     pub fn addrsel_policy_init();
     pub fn bindresvport(arg1: ::libc::c_int, arg2: *mut Struct_sockaddr_in) ->
      ::libc::c_int;
     pub fn bindresvport_sa(arg1: ::libc::c_int, arg2: *mut Struct_sockaddr) ->
      ::libc::c_int;
-    pub fn inet_addr(arg1: *::libc::c_char) -> in_addr_t;
+    pub fn inet_addr(arg1: *const ::libc::c_char) -> in_addr_t;
     pub fn inet_ntoa(arg1: Struct_in_addr) -> *mut ::libc::c_char;
-    pub fn inet_ntop(arg1: ::libc::c_int, arg2: *::libc::c_void,
+    pub fn inet_ntop(arg1: ::libc::c_int, arg2: *const ::libc::c_void,
                      arg3: *mut ::libc::c_char, arg4: socklen_t) ->
-     *::libc::c_char;
-    pub fn inet_pton(arg1: ::libc::c_int, arg2: *::libc::c_char,
+     *const ::libc::c_char;
+    pub fn inet_pton(arg1: ::libc::c_int, arg2: *const ::libc::c_char,
                      arg3: *mut ::libc::c_void) -> ::libc::c_int;
-    pub fn ascii2addr(arg1: ::libc::c_int, arg2: *::libc::c_char,
+    pub fn ascii2addr(arg1: ::libc::c_int, arg2: *const ::libc::c_char,
                       arg3: *mut ::libc::c_void) -> ::libc::c_int;
-    pub fn addr2ascii(arg1: ::libc::c_int, arg2: *::libc::c_void,
+    pub fn addr2ascii(arg1: ::libc::c_int, arg2: *const ::libc::c_void,
                       arg3: ::libc::c_int, arg4: *mut ::libc::c_char) ->
      *mut ::libc::c_char;
-    pub fn inet_aton(arg1: *::libc::c_char, arg2: *mut Struct_in_addr) ->
-     ::libc::c_int;
+    pub fn inet_aton(arg1: *const ::libc::c_char, arg2: *mut Struct_in_addr)
+     -> ::libc::c_int;
     pub fn inet_lnaof(arg1: Struct_in_addr) -> in_addr_t;
     pub fn inet_makeaddr(arg1: in_addr_t, arg2: in_addr_t) -> Struct_in_addr;
     pub fn inet_netof(arg1: Struct_in_addr) -> in_addr_t;
-    pub fn inet_network(arg1: *::libc::c_char) -> in_addr_t;
-    pub fn inet_net_ntop(arg1: ::libc::c_int, arg2: *::libc::c_void,
+    pub fn inet_network(arg1: *const ::libc::c_char) -> in_addr_t;
+    pub fn inet_net_ntop(arg1: ::libc::c_int, arg2: *const ::libc::c_void,
                          arg3: ::libc::c_int, arg4: *mut ::libc::c_char,
                          arg5: __darwin_size_t) -> *mut ::libc::c_char;
-    pub fn inet_net_pton(arg1: ::libc::c_int, arg2: *::libc::c_char,
+    pub fn inet_net_pton(arg1: ::libc::c_int, arg2: *const ::libc::c_char,
                          arg3: *mut ::libc::c_void, arg4: __darwin_size_t) ->
      ::libc::c_int;
     pub fn inet_neta(arg1: in_addr_t, arg2: *mut ::libc::c_char,
                      arg3: __darwin_size_t) -> *mut ::libc::c_char;
-    pub fn inet_nsap_addr(arg1: *::libc::c_char, arg2: *mut ::libc::c_uchar,
-                          arg3: ::libc::c_int) -> ::libc::c_uint;
-    pub fn inet_nsap_ntoa(arg1: ::libc::c_int, arg2: *::libc::c_uchar,
+    pub fn inet_nsap_addr(arg1: *const ::libc::c_char,
+                          arg2: *mut ::libc::c_uchar, arg3: ::libc::c_int) ->
+     ::libc::c_uint;
+    pub fn inet_nsap_ntoa(arg1: ::libc::c_int, arg2: *const ::libc::c_uchar,
                           arg3: *mut ::libc::c_char) -> *mut ::libc::c_char;
     pub fn amqp_os_error_string(err: ::libc::c_int) -> *mut ::libc::c_char;
     pub fn amqp_os_socket_error() -> ::libc::c_int;
@@ -1666,14 +1812,15 @@ extern "C" {
     pub fn amqp_socket_writev(_self: *mut amqp_socket_t,
                               iov: *mut Struct_iovec, iovcnt: ::libc::c_int)
      -> ssize_t;
-    pub fn amqp_socket_send(_self: *mut amqp_socket_t, buf: *::libc::c_void,
-                            len: size_t) -> ssize_t;
+    pub fn amqp_socket_send(_self: *mut amqp_socket_t,
+                            buf: *const ::libc::c_void, len: size_t) ->
+     ssize_t;
     pub fn amqp_socket_recv(_self: *mut amqp_socket_t,
                             buf: *mut ::libc::c_void, len: size_t,
                             flags: ::libc::c_int) -> ssize_t;
     pub fn amqp_socket_close(_self: *mut amqp_socket_t) -> ::libc::c_int;
     pub fn amqp_socket_delete(_self: *mut amqp_socket_t);
-    pub fn amqp_open_socket_noblock(hostname: *::libc::c_char,
+    pub fn amqp_open_socket_noblock(hostname: *const ::libc::c_char,
                                     portnumber: ::libc::c_int,
                                     timeout: *mut Struct_timeval) ->
      ::libc::c_int;
@@ -1685,41 +1832,44 @@ extern "C" {
                                              channel: amqp_channel_t,
                                              decoded_frame: *mut amqp_frame_t)
      -> ::libc::c_int;
-    pub fn asctime(arg1: *Struct_tm) -> *mut ::libc::c_char;
+    pub fn asctime(arg1: *const Struct_tm) -> *mut ::libc::c_char;
     pub fn clock() -> clock_t;
-    pub fn ctime(arg1: *time_t) -> *mut ::libc::c_char;
+    pub fn ctime(arg1: *const time_t) -> *mut ::libc::c_char;
     pub fn difftime(arg1: time_t, arg2: time_t) -> ::libc::c_double;
-    pub fn getdate(arg1: *::libc::c_char) -> *mut Struct_tm;
-    pub fn gmtime(arg1: *time_t) -> *mut Struct_tm;
-    pub fn localtime(arg1: *time_t) -> *mut Struct_tm;
+    pub fn getdate(arg1: *const ::libc::c_char) -> *mut Struct_tm;
+    pub fn gmtime(arg1: *const time_t) -> *mut Struct_tm;
+    pub fn localtime(arg1: *const time_t) -> *mut Struct_tm;
     pub fn mktime(arg1: *mut Struct_tm) -> time_t;
     pub fn strftime(arg1: *mut ::libc::c_char, arg2: size_t,
-                    arg3: *::libc::c_char, arg4: *Struct_tm) -> size_t;
-    pub fn strptime(arg1: *::libc::c_char, arg2: *::libc::c_char,
+                    arg3: *const ::libc::c_char, arg4: *const Struct_tm) ->
+     size_t;
+    pub fn strptime(arg1: *const ::libc::c_char, arg2: *const ::libc::c_char,
                     arg3: *mut Struct_tm) -> *mut ::libc::c_char;
     pub fn time(arg1: *mut time_t) -> time_t;
     pub fn tzset();
-    pub fn asctime_r(arg1: *Struct_tm, arg2: *mut ::libc::c_char) ->
+    pub fn asctime_r(arg1: *const Struct_tm, arg2: *mut ::libc::c_char) ->
      *mut ::libc::c_char;
-    pub fn ctime_r(arg1: *time_t, arg2: *mut ::libc::c_char) ->
+    pub fn ctime_r(arg1: *const time_t, arg2: *mut ::libc::c_char) ->
      *mut ::libc::c_char;
-    pub fn gmtime_r(arg1: *time_t, arg2: *mut Struct_tm) -> *mut Struct_tm;
-    pub fn localtime_r(arg1: *time_t, arg2: *mut Struct_tm) -> *mut Struct_tm;
+    pub fn gmtime_r(arg1: *const time_t, arg2: *mut Struct_tm) ->
+     *mut Struct_tm;
+    pub fn localtime_r(arg1: *const time_t, arg2: *mut Struct_tm) ->
+     *mut Struct_tm;
     pub fn posix2time(arg1: time_t) -> time_t;
     pub fn tzsetwall();
     pub fn time2posix(arg1: time_t) -> time_t;
     pub fn timelocal(arg1: *mut Struct_tm) -> time_t;
     pub fn timegm(arg1: *mut Struct_tm) -> time_t;
-    pub fn nanosleep(arg1: *Struct_timespec, arg2: *mut Struct_timespec) ->
+    pub fn nanosleep(arg1: *const Struct_timespec, arg2: *mut Struct_timespec)
+     -> ::libc::c_int;
+    pub fn adjtime(arg1: *const Struct_timeval, arg2: *mut Struct_timeval) ->
      ::libc::c_int;
-    pub fn adjtime(arg1: *Struct_timeval, arg2: *mut Struct_timeval) ->
+    pub fn futimes(arg1: ::libc::c_int, arg2: *const Struct_timeval) ->
      ::libc::c_int;
-    pub fn futimes(arg1: ::libc::c_int, arg2: *Struct_timeval) ->
-     ::libc::c_int;
-    pub fn lutimes(arg1: *::libc::c_char, arg2: *Struct_timeval) ->
-     ::libc::c_int;
-    pub fn settimeofday(arg1: *Struct_timeval, arg2: *Struct_timezone) ->
-     ::libc::c_int;
+    pub fn lutimes(arg1: *const ::libc::c_char, arg2: *const Struct_timeval)
+     -> ::libc::c_int;
+    pub fn settimeofday(arg1: *const Struct_timeval,
+                        arg2: *const Struct_timezone) -> ::libc::c_int;
     pub fn getitimer(arg1: ::libc::c_int, arg2: *mut Struct_itimerval) ->
      ::libc::c_int;
     pub fn gettimeofday(arg1: *mut Struct_timeval, arg2: *mut ::libc::c_void)
@@ -1727,9 +1877,9 @@ extern "C" {
     pub fn select(arg1: ::libc::c_int, arg2: *mut fd_set, arg3: *mut fd_set,
                   arg4: *mut fd_set, arg5: *mut Struct_timeval) ->
      ::libc::c_int;
-    pub fn setitimer(arg1: ::libc::c_int, arg2: *Struct_itimerval,
+    pub fn setitimer(arg1: ::libc::c_int, arg2: *const Struct_itimerval,
                      arg3: *mut Struct_itimerval) -> ::libc::c_int;
-    pub fn utimes(arg1: *::libc::c_char, arg2: *Struct_timeval) ->
+    pub fn utimes(arg1: *const ::libc::c_char, arg2: *const Struct_timeval) ->
      ::libc::c_int;
     pub fn amqp_get_monotonic_timestamp() -> uint64_t;
     pub fn amqp_timer_update(timer: *mut amqp_timer_t,
@@ -1742,7 +1892,7 @@ extern "C" {
                                  channel: amqp_channel_t) -> *mut amqp_pool_t;
     pub fn amqp_try_recv(state: amqp_connection_state_t,
                          current_time: uint64_t) -> ::libc::c_int;
-    pub fn amqp_abort(fmt: *::libc::c_char, ...);
+    pub fn amqp_abort(fmt: *const ::libc::c_char, ...);
     pub fn amqp_tcp_socket_new(state: amqp_connection_state_t) ->
      *mut amqp_socket_t;
     pub fn amqp_tcp_socket_set_sockfd(_self: *mut amqp_socket_t,

@@ -1,16 +1,16 @@
 #![feature(globs)]
 #![crate_type="lib"]
-#![crate_id="rabbitmq#1.0"]
 #![license = "BSD"]
 #![allow(non_camel_case_types)]
 
 extern crate libc;
-use std::bool;
+extern crate std;
 use std::mem;
+use rabbitmqc = ffi;
 
-pub mod rabbitmqc; //bindings
+pub mod ffi; //bindings
 
-pub static AMQP_SASL_METHOD_PLAIN: u32 = rabbitmqc::AMQP_SASL_METHOD_PLAIN;
+pub static AMQP_SASL_METHOD_PLAIN: u32 = ffi::AMQP_SASL_METHOD_PLAIN;
 pub static AMQP_REPLY_SUCCESS: i32 = 200;
 
 pub type amqp_rpc_reply = rabbitmqc::amqp_rpc_reply_t;
@@ -213,10 +213,10 @@ impl Connection {
       let req = &mut rabbitmqc::Struct_amqp_queue_declare_t_ {
         ticket :      0,
         queue :       str_to_amqp_bytes(&String::from_str(queue)),
-        passive :     bool::to_bit::<i32>(passive),
-        durable :     bool::to_bit::<i32>(durable),
-        exclusive :   bool::to_bit::<i32>(exclusive),
-        auto_delete : bool::to_bit::<i32>(auto_delete),
+        passive :     passive as i32,
+        durable :     durable as i32,
+        exclusive :   exclusive as i32,
+        auto_delete : auto_delete as i32,
         nowait :      0,
         arguments :   args,
       };
@@ -259,7 +259,7 @@ impl Connection {
         Some(prop) => mem::transmute(&prop.to_rabbit()),
         None => std::ptr::null::<rabbitmqc::amqp_basic_properties_t>()
       };
-      rabbitmqc::amqp_basic_publish(self.state, channel.id, str_to_amqp_bytes(&String::from_str(exchange)), str_to_amqp_bytes(&String::from_str(routing_key)), bool::to_bit::<i32>(mandatory), bool::to_bit::<i32>(immediate), props, vec_to_amqp_bytes(body))
+      rabbitmqc::amqp_basic_publish(self.state, channel.id, str_to_amqp_bytes(&String::from_str(exchange)), str_to_amqp_bytes(&String::from_str(routing_key)), mandatory as i32, immediate as i32, props, vec_to_amqp_bytes(body))
     }
   }
 
@@ -270,7 +270,7 @@ impl Connection {
         None => (amqp_table{entries: vec!() }).to_rabbit()
       };
       rabbitmqc::amqp_basic_consume(self.state, channel.id, str_to_amqp_bytes(&String::from_str(queue)), str_to_amqp_bytes(&String::from_str(consumer_tag)),
-        bool::to_bit::<i32>(no_local), bool::to_bit::<i32>(no_ack), bool::to_bit::<i32>(exclusive), args)
+        no_local as i32, no_ack as i32, exclusive as i32, args)
     }
   }
 
@@ -319,7 +319,7 @@ impl Connection {
 // top level
 pub fn version() -> String {
   unsafe {
-	  return std::str::raw::from_c_str(rabbitmqc::amqp_version());
+	  return std::string::raw::from_buf(rabbitmqc::amqp_version() as *const u8);
 	}
 }
 
@@ -347,7 +347,7 @@ fn vec_to_amqp_bytes(vec: Vec<u8>) -> rabbitmqc::amqp_bytes_t {
 
 fn amqp_bytes_to_str(bytes: rabbitmqc::amqp_bytes_t) -> String {
   unsafe {
-    std::str::raw::from_buf_len(mem::transmute(bytes.bytes), bytes.len as uint)
+    std::string::raw::from_buf_len(mem::transmute(bytes.bytes), bytes.len as uint)
   }
 }
 fn amqp_bytes_to_vec(bytes: rabbitmqc::amqp_bytes_t) -> Vec<u8> {
@@ -358,7 +358,7 @@ fn amqp_bytes_to_vec(bytes: rabbitmqc::amqp_bytes_t) -> Vec<u8> {
 
 fn error_string(error: i32) -> String {
   unsafe {
-    return std::str::raw::from_c_str(rabbitmqc::amqp_error_string2(error));
+    return std::string::raw::from_buf(rabbitmqc::amqp_error_string2(error) as *const u8);
   }
 }
 
