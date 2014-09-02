@@ -1,9 +1,8 @@
 LIB_RABBITMQ_LIB_PATH = ENV['LIB_RABBITMQ_LIB_PATH']
 LIB_RABBITMQ_INC_PATH = ENV['LIB_RABBITMQ_INC_PATH']
-CRATE_FILE = `rustc --crate-file-name --crate-type=rlib src/lib.rs`
 
 def crate_file
-  Dir['librabbitmq*.rlib'].first || 'librabbitmq'
+  'librabbitmq'
 end
 
 desc 'generate bindings'

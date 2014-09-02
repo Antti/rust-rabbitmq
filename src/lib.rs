@@ -4,9 +4,8 @@
 #![allow(non_camel_case_types)]
 
 extern crate libc;
-extern crate std;
 use std::mem;
-use rabbitmqc = ffi;
+use ffi as rabbitmqc;
 
 pub mod ffi; //bindings
 

@@ -3,6 +3,33 @@
 pub type __int128_t = ::libc::c_void;
 pub type __uint128_t = ::libc::c_void;
 pub type __builtin_va_list = [__va_list_tag, ..1u];
+pub type ptrdiff_t = ::libc::c_long;
+pub type size_t = ::libc::c_ulong;
+pub type wchar_t = ::libc::c_int;
+pub type int8_t = ::libc::c_char;
+pub type int16_t = ::libc::c_short;
+pub type int32_t = ::libc::c_int;
+pub type int64_t = ::libc::c_longlong;
+pub type uint8_t = ::libc::c_uchar;
+pub type uint16_t = ::libc::c_ushort;
+pub type uint32_t = ::libc::c_uint;
+pub type uint64_t = ::libc::c_ulonglong;
+pub type int_least8_t = int8_t;
+pub type int_least16_t = int16_t;
+pub type int_least32_t = int32_t;
+pub type int_least64_t = int64_t;
+pub type uint_least8_t = uint8_t;
+pub type uint_least16_t = uint16_t;
+pub type uint_least32_t = uint32_t;
+pub type uint_least64_t = uint64_t;
+pub type int_fast8_t = int8_t;
+pub type int_fast16_t = int16_t;
+pub type int_fast32_t = int32_t;
+pub type int_fast64_t = int64_t;
+pub type uint_fast8_t = uint8_t;
+pub type uint_fast16_t = uint16_t;
+pub type uint_fast32_t = uint32_t;
+pub type uint_fast64_t = uint64_t;
 pub type __int8_t = ::libc::c_char;
 pub type __uint8_t = ::libc::c_uchar;
 pub type __int16_t = ::libc::c_short;
@@ -120,43 +147,6 @@ pub type __darwin_uid_t = __uint32_t;
 pub type __darwin_useconds_t = __uint32_t;
 pub type __darwin_uuid_t = [::libc::c_uchar, ..16u];
 pub type __darwin_uuid_string_t = [::libc::c_char, ..37u];
-pub type size_t = __darwin_size_t;
-pub type ssize_t = __darwin_ssize_t;
-#[repr(C)]
-pub struct Struct_iovec {
-    pub iov_base: *mut ::libc::c_void,
-    pub iov_len: size_t,
-}
-pub type Enum_uio_rw = ::libc::c_uint;
-pub static UIO_READ: ::libc::c_uint = 0;
-pub static UIO_WRITE: ::libc::c_uint = 1;
-pub type ptrdiff_t = ::libc::c_long;
-pub type rsize_t = ::libc::c_ulong;
-pub type wchar_t = ::libc::c_int;
-pub type int8_t = ::libc::c_char;
-pub type int16_t = ::libc::c_short;
-pub type int32_t = ::libc::c_int;
-pub type int64_t = ::libc::c_longlong;
-pub type uint8_t = ::libc::c_uchar;
-pub type uint16_t = ::libc::c_ushort;
-pub type uint32_t = ::libc::c_uint;
-pub type uint64_t = ::libc::c_ulonglong;
-pub type int_least8_t = int8_t;
-pub type int_least16_t = int16_t;
-pub type int_least32_t = int32_t;
-pub type int_least64_t = int64_t;
-pub type uint_least8_t = uint8_t;
-pub type uint_least16_t = uint16_t;
-pub type uint_least32_t = uint32_t;
-pub type uint_least64_t = uint64_t;
-pub type int_fast8_t = int8_t;
-pub type int_fast16_t = int16_t;
-pub type int_fast32_t = int32_t;
-pub type int_fast64_t = int64_t;
-pub type uint_fast8_t = uint8_t;
-pub type uint_fast16_t = uint16_t;
-pub type uint_fast32_t = uint32_t;
-pub type uint_fast64_t = uint64_t;
 pub type intptr_t = __darwin_intptr_t;
 pub type uintptr_t = ::libc::c_ulong;
 pub type intmax_t = ::libc::c_long;
@@ -889,7 +879,9 @@ pub struct Struct_amqp_connection_info {
 pub type __darwin_nl_item = ::libc::c_int;
 pub type __darwin_wctrans_t = ::libc::c_int;
 pub type __darwin_wctype_t = __uint32_t;
+pub type rsize_t = __darwin_size_t;
 pub type errno_t = ::libc::c_int;
+pub type ssize_t = __darwin_ssize_t;
 pub type in_addr_t = __uint32_t;
 pub type in_port_t = __uint16_t;
 pub type u_int8_t = ::libc::c_uchar;
@@ -956,6 +948,11 @@ pub type fsblkcnt_t = __darwin_fsblkcnt_t;
 pub type fsfilcnt_t = __darwin_fsfilcnt_t;
 pub type sa_family_t = __uint8_t;
 pub type socklen_t = __darwin_socklen_t;
+#[repr(C)]
+pub struct Struct_iovec {
+    pub iov_base: *mut ::libc::c_void,
+    pub iov_len: size_t,
+}
 #[repr(C)]
 pub struct Struct_linger {
     pub l_onoff: ::libc::c_int,
@@ -1111,6 +1108,9 @@ pub struct Struct_ip6_mtuinfo {
     pub ip6m_addr: Struct_sockaddr_in6,
     pub ip6m_mtu: uint32_t,
 }
+pub type Enum_uio_rw = ::libc::c_uint;
+pub static UIO_READ: ::libc::c_uint = 0;
+pub static UIO_WRITE: ::libc::c_uint = 1;
 pub type amqp_socket_writev_fn =
     ::std::option::Option<extern "C" fn
                               (arg1: *mut ::libc::c_void,
@@ -1270,10 +1270,6 @@ extern "C" {
     pub static mut getdate_err: ::libc::c_int;
     pub static mut timezone: ::libc::c_long;
     pub static mut daylight: ::libc::c_int;
-    pub fn readv(arg1: ::libc::c_int, arg2: *const Struct_iovec,
-                 arg3: ::libc::c_int) -> ssize_t;
-    pub fn writev(arg1: ::libc::c_int, arg2: *const Struct_iovec,
-                  arg3: ::libc::c_int) -> ssize_t;
     pub fn amqp_version_number() -> uint32_t;
     pub fn amqp_version() -> *const ::libc::c_char;
     pub fn amqp_constant_name(constantNumber: ::libc::c_int) ->
@@ -1804,6 +1800,10 @@ extern "C" {
      ::libc::c_uint;
     pub fn inet_nsap_ntoa(arg1: ::libc::c_int, arg2: *const ::libc::c_uchar,
                           arg3: *mut ::libc::c_char) -> *mut ::libc::c_char;
+    pub fn readv(arg1: ::libc::c_int, arg2: *const Struct_iovec,
+                 arg3: ::libc::c_int) -> ssize_t;
+    pub fn writev(arg1: ::libc::c_int, arg2: *const Struct_iovec,
+                  arg3: ::libc::c_int) -> ssize_t;
     pub fn amqp_os_error_string(err: ::libc::c_int) -> *mut ::libc::c_char;
     pub fn amqp_os_socket_error() -> ::libc::c_int;
     pub fn amqp_os_socket_close(sockfd: ::libc::c_int) -> ::libc::c_int;
