@@ -1,6 +1,9 @@
 rust-rabbitmq
 =============
 
+
+## I recommend using: [https://github.com/Antti/rust-amqp] instead of this project.
+
 rust-rabbitmq is a rust binding to [librabbitmq-c]
 
 I'm very new to rust, and this is my "hello world" lib.
